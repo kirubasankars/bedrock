@@ -1,0 +1,35 @@
+{
+  "name": "$NODE_NAME",
+  "datacenter": "$CLUSTER_ID",
+  "data_dir": "/opt/agent/nomad/data",
+
+  "consul" : {
+    "address": "127.0.0.1:$CONSUL_HTTP_PORT",
+    "server_service_name": "nomad",
+    "auto_advertise": true,
+    "client_auto_join": true,
+    "server_auto_join": true
+  },
+  
+  "bind_addr": "{{ GetInterfaceIP \"$INTERFACE_NAME\" }}",
+  
+  "tls": {
+    "ca_file": "/opt/agent/certs/ca-public-key.pem",
+    "cert_file": "/opt/agent/certs/agent-public-key.pem",
+    "key_file": "/opt/agent/certs/agent-private-key.pem",
+    "http": true,
+    "rpc": true,
+    "verify_server_hostname": true,
+    "verify_https_client": false
+  },
+
+  "log_level": "INFO",
+  "log_file": "/opt/agent/nomad/logs/nomad.json",
+  "log_rotate_bytes": 10000000,
+  "log_rotate_max_files": 5,
+  "log_json": true,
+
+  "disable_update_check": true,
+  "leave_on_terminate": true,
+  "leave_on_interrupt": true
+}

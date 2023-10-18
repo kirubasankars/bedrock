@@ -1,0 +1,66 @@
+{
+  "node_name": "$NODE_NAME",
+  "datacenter": "$CLUSTER_ID",
+  "primary_datacenter": "$CLUSTER_ID",
+  "bind_addr": "{{ GetInterfaceIP \"$INTERFACE_NAME\" }}",
+  "client_addr": "0.0.0.0",
+  "data_dir": "/opt/agent/consul/data",
+  "domain": "consul",
+  "ui": true,
+  "enable_script_checks": false,
+  "disable_update_check": true,
+  "leave_on_terminate": true,
+  "rejoin_after_leave": true,
+  "raft_protocol": 3,
+
+  "log_level": "INFO",
+  "log_file": "/opt/agent/consul/logs/consul.json",
+  "log_rotate_bytes": 10000000,
+  "log_rotate_max_files": 5,
+  "log_json": true,
+  "enable_syslog": false,
+
+  "tls": {
+    "defaults": {
+      "ca_file": "/opt/agent/certs/ca-public-key.pem",
+      "cert_file": "/opt/agent/certs/agent-public-key.pem",
+      "key_file": "/opt/agent/certs/agent-private-key.pem",
+      "verify_incoming": true,
+      "verify_outgoing": true,
+      "tls_cipher_suites": "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+    },
+    "internal_rpc": {
+      "verify_incoming": true,
+      "verify_server_hostname": true
+    },
+    "https" : {
+      "verify_incoming": false
+    },
+    "grpc": {
+      "verify_incoming": false
+    }
+  },
+  "tls_prefer_server_cipher_suites": true,
+
+  "ports": {
+    "https": $CONSUL_HTTPS_PORT,
+    "grpc_tls": 8502,
+    "grpc": 8503,
+    "http": $CONSUL_HTTP_PORT
+  },
+
+  "connect": {
+    "enabled": true
+  },
+
+  "dns_config": {
+    "udp_answer_limit": 99,
+    "enable_truncate": true,
+    "only_passing": true
+  },
+
+  "encrypt": "$ENCRYPTION_KEY",
+  "encrypt_verify_incoming": true,
+  "encrypt_verify_outgoing": true,
+  "enable_agent_tls_for_checks": true
+}

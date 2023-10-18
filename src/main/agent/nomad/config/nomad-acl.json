@@ -1,0 +1,9 @@
+{
+    "acl": [
+      {
+        "enabled": true,
+        "policy_ttl": "60s",
+        "token_ttl": "30s"
+      }
+    ]
+  }

@@ -1,0 +1,10 @@
+{
+    "vault": {
+        "enabled": true,
+        "address": "https://vault.service.consul:$VAULT_API_PORT",
+        "ca_file": "/opt/agent/certs/ca-public-key.pem",
+        "allow_unauthenticated": false,
+        "create_from_role": "nomad-cluster",
+        "task_token_ttl": "1h"
+    }
+}

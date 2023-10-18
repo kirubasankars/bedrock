@@ -1,0 +1,6 @@
+tls_server_config:
+  cert_file: /opt/agent/certs/agent-public-key.pem
+  key_file: /opt/agent/certs/agent-private-key.pem
+
+basic_auth_users:
+  admin: $2b$12$QcZiRdhpN4S2D.gCLyq./ewiStyoIVzH9KNn6/URH1Wngt8DEEHg2
