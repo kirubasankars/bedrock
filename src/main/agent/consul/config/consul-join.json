@@ -1,0 +1,3 @@
+{
+    "retry_join": ["$CONSUL_NODE1", "$CONSUL_NODE2"]
+}

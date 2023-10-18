@@ -1,0 +1,7 @@
+{
+  "server" : {
+    "enabled" : true,
+    "bootstrap_expect": $NOMAD_BOOTSTRAP_COUNT,
+    "encrypt": "$ENCRYPTION_KEY"
+  }
+}

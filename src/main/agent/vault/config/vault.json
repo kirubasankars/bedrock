@@ -1,0 +1,37 @@
+{
+  "ui": true,
+  "storage": {
+    "raft": {
+      "path": "/opt/agent/vault/data",
+      "node_id": "$NODE_NAME",
+      "retry_join" : [
+        {
+          "leader_api_addr": "https://$VAULT_NODE1:$VAULT_API_PORT",
+          "leader_ca_cert_file": "/opt/agent/certs/ca-public-key.pem"
+        },
+        {
+          "leader_api_addr": "https://$VAULT_NODE2:$VAULT_API_PORT",
+          "leader_ca_cert_file": "/opt/agent/certs/ca-public-key.pem"
+        }
+      ]
+    }
+  },
+  "disable_mlock": true,
+  "log_level": "INFO",
+  "log_format": "json",
+  "service_registration": {
+    "consul": {
+      "address": "127.0.0.1:$CONSUL_HTTP_PORT"
+    }
+  },
+  "listener": {
+    "tcp": {
+      "address": "{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_API_PORT",
+      "tls_cert_file": "/opt/agent/certs/agent-public-key.pem",
+      "tls_key_file": "/opt/agent/certs/agent-private-key.pem",
+      "tls_client_ca_file": "/opt/agent/certs/ca-public-key.pem"
+    }
+  },
+  "cluster_addr": "https://{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_CLUSTER_PORT",
+  "api_addr": "https://{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_API_PORT"
+}

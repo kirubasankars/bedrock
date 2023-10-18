@@ -1,0 +1,19 @@
+[Unit]
+Description=Jenkins Continuous Integration Server
+Requires=network.target
+After=network.target
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -jar /opt/agent/jenkins/bin/jenkins.war
+Restart=on-failure
+SuccessExitStatus=143
+
+User=agent
+Group=agent
+
+EnvironmentFile=-/opt/agent/jenkins/config/jenkins.env
+
+[Install]
+WantedBy=multi-user.target

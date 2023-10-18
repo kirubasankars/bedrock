@@ -1,0 +1,8 @@
+{
+  "acl": {
+    "enabled": true,
+    "enable_token_persistence": true,
+    "down_policy": "extend-cache",
+    "default_policy": "allow"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "bootstrap_expect": $CONSUL_BOOTSTRAP_COUNT,
+  "server": true,
+  "auto_encrypt": {
+    "allow_tls": true
+  }
+}

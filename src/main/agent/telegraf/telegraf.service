@@ -1,0 +1,19 @@
+[Unit]
+Description=Telegraf
+Documentation=https://github.com/influxdata/telegraf
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+EnvironmentFile=-/opt/agent/telegraf/config/telegraf.env
+User=root
+ExecStart=/opt/agent/telegraf/bin/telegraf -config-directory /opt/agent/telegraf/config/
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartForceExitStatus=SIGPIPE
+KillMode=control-group
+LimitMEMLOCK=8M:8M
+
+[Install]
+WantedBy=multi-user.target

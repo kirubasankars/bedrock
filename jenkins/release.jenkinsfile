@@ -1,0 +1,32 @@
+pipeline {
+    
+    agent any 
+
+    stages {
+        
+        stage("prepare") {
+            steps {
+                sh 'rsync -r /distro ./src/main/'
+                sh 'rsync -r /nodes.txt ./workspace/nodes.txt'
+            }
+        }
+
+        stage("build") {
+            steps {
+                sh 'make build'
+            }
+        }
+
+        stage("setup") {
+            steps {
+                sh 'make cleanup setup restart down up'
+            }
+        }
+
+         stage("test") {
+             steps {
+                 sh 'python ./jenkins/build.py'
+             }
+         }
+    }
+}

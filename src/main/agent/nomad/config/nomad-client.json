@@ -1,0 +1,50 @@
+{
+  "client": {
+    "enabled": true,
+    "network_interface": "$INTERFACE_NAME"
+  },
+  "plugin": [
+    {
+      "raw_exec": [
+        {
+          "config": [
+            {
+              "enabled": true
+            }
+          ]
+        }
+      ],
+      "docker": [
+        {
+          "config": [
+            {
+              "auth": [
+                {
+                  "config": "/etc/docker/config.json"
+                }
+              ],
+              "gc": [
+                {
+                  "image": true,
+                  "image_delay": "3m",
+                  "container": true
+                }
+              ],
+              "infra_image": "gcr.io/google_containers/pause-amd64:3.2",
+              "pids_limit": 512,
+              "volumes": [
+                {
+                  "enabled": true,
+                  "selinuxlabel": "z"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "options": {
+    "driver.allowlist": "docker,raw_exec,exec"
+  }
+}
