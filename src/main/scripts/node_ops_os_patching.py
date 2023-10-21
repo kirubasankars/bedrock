@@ -3,7 +3,7 @@ import wait_for_machine
 import os
 import time
 
-command_helper.command_remote("sh /opt/agent/infra/bin/setup.sh")
+command_helper.command_remote("sh /opt/agent/bin/os_setup.sh")
 
 try:
     command_helper.command_remote("""            

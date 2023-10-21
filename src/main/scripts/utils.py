@@ -37,7 +37,7 @@ def custom_sort_order(element):
         return 99
 
 def retrieve_host_ip_and_roles(host_filter = None):
-    with open("/workspace/nodes.txt", "r") as f:
+    with open("/workspace/hosts.txt", "r") as f:
         filedata = f.read()
     lines = [x.strip() for x in filedata.split("\n") if x.strip()]
     nodes = {}

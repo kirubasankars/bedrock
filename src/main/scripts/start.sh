@@ -1,10 +1,6 @@
 #!/bin/bash
 set -ueo pipefail
 
-eval $(ssh-agent -s) > /dev/null
-ssh-add /workspace/homelab.key 2> /dev/null
-echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config
-
 touch /workspace/cluster_config.env
 source /workspace/cluster_config.env
 touch /workspace/variables.env
@@ -13,16 +9,21 @@ source /workspace/variables.env
 export CLUSTER_ID=${CLUSTER_ID:-"undefined"}
 export NETWORK_INTERFACE_NAME=${NETWORK_INTERFACE_NAME:-"eth0"}
 export UPDATE_CERT=${UPDATE_CERT:="0"}
-
-export CONSUL_TOKEN=${CONSUL_TOKEN:-""}
-export VAULT_TOKEN=${VAULT_TOKEN:-""}
-export ENCRYPTION_KEY=${ENCRYPTION_KEY:-""}
-
 export SSH_USER=${SSH_USER:-""}
+export SSH_KEY=${SSH_KEY:-""}
+
+# shellcheck disable=SC2046
+eval $(ssh-agent -s) > /dev/null
+ssh-add /workspace/"${SSH_KEY}" 2> /dev/null
+echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config
 
 image_name=$(docker inspect --format='{{.Config.Image}}' "$HOSTNAME")
 export IMAGE_NAME=$image_name
 export NODE_OPS=${NODE_OPS:-"0"}
+
+export CONSUL_TOKEN=${CONSUL_TOKEN:-""}
+export VAULT_TOKEN=${VAULT_TOKEN:-""}
+export ENCRYPTION_KEY=${ENCRYPTION_KEY:-""}
 
 if [ "$NODE_OPS" == "1" ]; then
   python3 /scripts/"node_ops_$OPERATION".py
@@ -42,7 +43,7 @@ elif [ "$OPERATION" == "validate" ]; then
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/initialize.py
-  python3 /scripts/system_manager.py --roles cluster --operation infra_setup
+  python3 /scripts/system_manager.py --roles cluster --operation os_setup
   python3 /scripts/system_manager.py --roles cluster --operation update
   python3 /scripts/system_manager.py --roles telegraf --operation telegraf_up
   python3 /scripts/system_manager.py --roles filebeat --operation filebeat_up
@@ -75,10 +76,10 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/bootstrap_prometheus.py
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "update" ]; then
-  python3 /scripts/system_manager.py --roles cluster --operation infra_setup
+  python3 /scripts/system_manager.py --roles cluster --operation os_setup
   python3 /scripts/system_manager.py --roles cluster --operation update
 elif [ "$OPERATION" == "os_patching" ]; then
-  python3 /scripts/system_manager.py --roles cluster --operation infra_update --concurrency 1
+  python3 /scripts/system_manager.py --roles cluster --operation os_patching --concurrency 1
 elif [ "$OPERATION" == "restart" ]; then
   python3 /scripts/system_manager.py --roles telegraf --operation telegraf_restart
   python3 /scripts/system_manager.py --roles filebeat --operation filebeat_restart
@@ -127,7 +128,7 @@ elif [ "$OPERATION" == "unseal" ]; then
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "setup_jenkins" ]; then
   python3 /scripts/system_manager.py --roles jenkins --operation cleanup
-  python3 /scripts/system_manager.py --roles jenkins --operation jenkins_infra_setup
+  python3 /scripts/system_manager.py --roles jenkins --operation jenkins_os_setup
   python3 /scripts/system_manager.py --roles jenkins --operation update
   python3 /scripts/system_manager.py --roles jenkins --operation jenkins_up && sleep 10
   python3 /scripts/system_manager.py --roles jenkins --operation jenkins_import_jobs
