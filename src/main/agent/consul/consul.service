@@ -9,7 +9,7 @@ ConditionFileNotEmpty=/opt/agent/consul/config/consul.json
 EnvironmentFile=-/opt/agent/consul/config/consul.env
 User=agent
 Group=agent
-ExecStart=/opt/agent/consul/bin/consul agent -config-dir=/opt/agent/consul/config/
+ExecStart=/opt/agent/consul/bin/$CONSUL_VERSION/consul agent -config-dir=/opt/agent/consul/config/
 ExecReload=/bin/kill --signal HUP $MAINPID
 KillMode=process
 KillSignal=SIGTERM

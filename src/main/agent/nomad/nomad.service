@@ -10,7 +10,7 @@ After=consul.service
 [Service]
 EnvironmentFile=-/opt/agent/nomad/config/nomad.env
 ExecReload=/bin/kill -HUP $MAINPID
-ExecStart=/opt/agent/nomad/bin/nomad agent -config /opt/agent/nomad/config
+ExecStart=/opt/agent/nomad/bin/$NOMAD_VERSION/nomad agent -config /opt/agent/nomad/config
 KillMode=process
 KillSignal=SIGINT
 LimitNOFILE=65536

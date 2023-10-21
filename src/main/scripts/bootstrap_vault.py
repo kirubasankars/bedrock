@@ -8,7 +8,7 @@ def bootstrap_vault():
     vault_server = vault_servers[0]
     result = command_remote(f"""
         source /opt/agent/profile
-        /opt/agent/vault/bin/vault operator init -address='https://{vault_server}:{const.VAULT_API_PORT}'
+        vault operator init -address='https://{vault_server}:{const.VAULT_API_PORT}'
     """, host=vault_server)
 
     if result.returncode == 0:

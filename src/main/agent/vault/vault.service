@@ -20,7 +20,7 @@ SecureBits=keep-caps
 AmbientCapabilities=CAP_IPC_LOCK
 CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
 NoNewPrivileges=yes
-ExecStart=/opt/agent/vault/bin/vault server -config=/opt/agent/vault/config/vault.json
+ExecStart=/opt/agent/vault/bin/$VAULT_VERSION/vault server -config=/opt/agent/vault/config/vault.json
 ExecReload=/bin/kill --signal HUP $MAINPID
 KillMode=process
 KillSignal=SIGINT

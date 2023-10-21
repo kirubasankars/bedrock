@@ -10,7 +10,7 @@ After=consul.service
 [Service]
 EnvironmentFile=-/opt/agent/prometheus/config/prometheus.env
 ExecReload=/bin/kill -HUP $MAINPID
-ExecStart=/opt/agent/prometheus/bin/prometheus --web.enable-admin-api --web.listen-address=:8080 --web.config.file=/opt/agent/prometheus/config/prometheus.web.yml --config.file=/opt/agent/prometheus/config/prometheus.yml
+ExecStart=/opt/agent/prometheus/bin/$PROMETHEUS_VERSION/prometheus --web.enable-admin-api --web.listen-address=:8080 --web.config.file=/opt/agent/prometheus/config/prometheus.web.yml --config.file=/opt/agent/prometheus/config/prometheus.yml
 KillMode=process
 KillSignal=SIGINT
 LimitNOFILE=65536

@@ -9,6 +9,9 @@ def get_host_id():
     with open("/opt/agent/host.txt", "r") as f:
         return f.read().strip()
 
+with open("/scripts/artifacts.json", "r") as f:
+    versions = json.loads(f.read())
+
 def transpile():
     host_id = get_host_id()
     interface_name = get_network_interface_name()
@@ -30,6 +33,8 @@ def transpile():
         vault_servers.append(vault_servers[0])
 
     targets = json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()])
+
+
 
     for ext in ["*.json", "*.service", "*.conf", "*.yml", "*.env"]:
         for f in Path('/opt/agent/').rglob(ext):
@@ -61,6 +66,14 @@ def transpile():
             content = content.replace('$CONSUL_TOKEN', consul_token)
             content = content.replace('$VAULT_TOKEN', vault_token)
 
+            content = content.replace('$NOMAD_VERSION', versions["nomad_version"])
+            content = content.replace('$CONSUL_VERSION', versions["consul_version"])
+            content = content.replace('$VAULT_VERSION', versions["vault_version"])
+            content = content.replace('$TELEGRAF_VERSION', versions["telegraf_version"])
+            content = content.replace('$FILEBEAT_VERSION', versions["filebeat_version"])
+            content = content.replace('$PROMETHEUS_VERSION', versions["prometheus_version"])
+            content = content.replace('$JENKINS_VERSION', versions["jenkins_version"])
+
             if content != data:
                 with open(f, 'w') as file:
                     file.write(content)
@@ -70,7 +83,7 @@ def sync():
     host = os.getenv("HOST")
 
     command_local("""
-        rsync -r /workspace/distro/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins}  /agent
+        rsync -r /workspace/artifacts/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins}  /agent
         mkdir -p /opt/agent/certs
         bash /scripts/rsync_remote_local.sh
     """)
@@ -138,19 +151,19 @@ def sync():
 
     if len([x for x in roles if "consul" in x]) > 0:
         with open("/opt/agent/profile", "a") as f:
-            f.writelines("alias consul=/opt/agent/consul/bin/consul\n")
+            f.writelines(f"alias consul=/opt/agent/consul/bin/{versions['consul_version']}/consul\n")
             f.writelines("export CONSUL_HTTP_SSL=true\n")
             f.writelines(f"export CONSUL_HTTP_ADDR={host}:{const.CONSUL_HTTPS_PORT}\n")
 
     if len([x for x in roles if "nomad" in x]) > 0:
         with open("/opt/agent/profile", "a") as f:
-            f.writelines("alias nomad=/opt/agent/nomad/bin/nomad\n")
+            f.writelines(f"alias nomad=/opt/agent/nomad/bin/{versions['nomad_version']}/nomad\n")
             f.writelines(f"export NOMAD_ADDR=https://{host}:{const.NOMAD_PORT}\n")
 
     if len([x for x in roles if "vault" in x]) > 0:
         with open("/opt/agent/profile", "a") as f:
-            f.writelines("alias vault=/opt/agent/vault/bin/vault\n")
-            f.writelines(f"export VAULT_ADDR=https://{host}:{const.VAULT_CLUSTER_PORT}\n")
+            f.writelines(f"alias vault=/opt/agent/vault/bin/{versions['vault_version']}/vault\n")
+            f.writelines(f"export VAULT_ADDR=https://{host}:{const.VAULT_API_PORT}\n")
 
     command_local("""        
         bash /scripts/rsync_local_remote.sh        

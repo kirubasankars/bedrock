@@ -1,0 +1,9 @@
+{
+  "nomad_version" : "1.6.1",
+  "consul_version" : "1.16.1",
+  "vault_version" : "1.14.1",
+  "telegraf_version" : "1.27.4",
+  "filebeat_version" : "8.10.0",
+  "prometheus_version" : "2.44.0",
+  "jenkins_version" : "2.414.2"
+}

@@ -11,7 +11,7 @@ Environment="GODEBUG='madvdontneed=1'"
 Environment="BEAT_LOG_OPTS="
 Environment="BEAT_CONFIG_OPTS=-c /opt/agent/filebeat/config/filebeat.yml"
 Environment="BEAT_PATH_OPTS=-c /opt/agent/filebeat/config/filebeat.yml --path.home /opt/agent/filebeat/config --path.config /opt/agent/filebeat/config --path.data /opt/agent/filebeat/data --path.logs /opt/agent/filebeat/logs"
-ExecStart=/opt/agent/filebeat/bin/filebeat --environment systemd $BEAT_LOG_OPTS $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS
+ExecStart=/opt/agent/filebeat/bin/$FILEBEAT_VERSION/filebeat --environment systemd $BEAT_LOG_OPTS $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS
 Restart=always
 
 [Install]

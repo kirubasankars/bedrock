@@ -11,7 +11,10 @@ def bootstrap_nomad():
 
     nomad_server = nomad_servers[0]
 
-    result = command_remote(cmd=f"/opt/agent/nomad/bin/nomad acl bootstrap -address='https://{nomad_server}:{const.NOMAD_PORT}'", host=nomad_server)
+    result = command_remote(cmd=f"""
+    source /opt/agent/profile
+    nomad acl bootstrap -address='https://{nomad_server}:{const.NOMAD_PORT}'
+""", host=nomad_server)
     if result.returncode == 0:
         stdout = result.stdout.decode('utf-8')
 #        with open("/workspace/nomad.out", "w") as f:

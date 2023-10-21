@@ -30,8 +30,8 @@ if [ "$NODE_OPS" == "1" ]; then
 fi
 
 if [ "$OPERATION" == "download_artifacts" ]; then
-  rm -fr /workspace/distro
-  mkdir -p /workspace/distro
+  rm -fr /workspace/downloads
+  mkdir -p /workspace/downloads
   bash /scripts/download_distro.sh
   bash /scripts/extract.sh
 elif [ "$OPERATION" == "cleanup" ]; then

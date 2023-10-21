@@ -3,17 +3,23 @@
 set -ueo pipefail
 yum install -y wget
 
-rm -f /workspace/distro/downloads/{*.zip,*.gz,*.war}
+NOMAD_VERSION=$(jq -r '.nomad_version' /scripts/artifacts.json)
+CONSUL_VERSION=$(jq -r '.consul_version' /scripts/artifacts.json)
+VAULT_VERSION=$(jq -r '.vault_version' /scripts/artifacts.json)
+TELEGRAF_VERSION=$(jq -r '.telegraf_version' /scripts/artifacts.json)
+PROMETHEUS_VERSION=$(jq -r '.prometheus_version' /scripts/artifacts.json)
+FILEBEAT_VERSION=$(jq -r '.filebeat_version' /scripts/artifacts.json)
+JENKINS_VERSION=$(jq -r '.jenkins_version' /scripts/artifacts.json)
 
-wget -P /workspace/distro/downloads/  https://releases.hashicorp.com/nomad/1.6.1/nomad_1.6.1_linux_amd64.zip &
-wget -P /workspace/distro/downloads/  https://releases.hashicorp.com/consul/1.16.1/consul_1.16.1_linux_amd64.zip &
-wget -P /workspace/distro/downloads/  https://releases.hashicorp.com/vault/1.14.1/vault_1.14.1_linux_amd64.zip &
+wget -P /workspace/artifacts/downloads/  https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip &
+wget -P /workspace/artifacts/downloads/  https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &
+wget -P /workspace/artifacts/downloads/  https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip &
 
 wait
 
-wget -P /workspace/distro/downloads/  https://dl.influxdata.com/telegraf/releases/telegraf-1.27.4_linux_amd64.tar.gz &
-wget -P /workspace/distro/downloads/  https://github.com/prometheus/prometheus/releases/download/v2.44.0/prometheus-2.44.0.linux-amd64.tar.gz &
-wget -P /workspace/distro/downloads/  https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.10.0-linux-x86_64.tar.gz &
-wget -P /workspace/distro/downloads/  https://get.jenkins.io/war-stable/2.414.2/jenkins.war &
+wget -P /workspace/artifacts/downloads/  https://dl.influxdata.com/telegraf/releases/telegraf-${TELEGRAF_VERSION}_linux_amd64.tar.gz &
+wget -P /workspace/artifacts/downloads/  https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${FILEBEAT_VERSION}-linux-x86_64.tar.gz &
+wget -P /workspace/artifacts/downloads/  https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz &
+wget -P /workspace/artifacts/downloads/  https://get.jenkins.io/war-stable/${JENKINS_VERSION}/jenkins.war &
 
 wait
