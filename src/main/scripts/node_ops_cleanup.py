@@ -1,5 +1,6 @@
 from command_helper import *
 
+
 def main():
     command_remote("""
         for x in consul nomad vault telegraf prometheus jenkins; do
@@ -24,5 +25,6 @@ def main():
         [ -d /opt/agent ] && rm -r /opt/agent        
         sed -i '/source \/opt\/agent\/profile/d' /etc/profile                                
     """)
+
 
 main()

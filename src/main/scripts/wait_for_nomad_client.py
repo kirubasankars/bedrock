@@ -1,8 +1,9 @@
 import time
 
-from cert import *
 import requests
+
 import const
+from utils import *
 
 
 def nomad_up():
@@ -13,7 +14,7 @@ def nomad_up():
     while True:
         try:
             r = requests.get(f"https://{consul_server}:{const.CONSUL_HTTPS_PORT}/v1/health/checks/nomad-client",
-                             verify='/workspace/ca-public-key.pem')
+                             verify=const.PUBLIC_CERT)
             r.raise_for_status()
             data = r.json()
             if len([x for x in data if x["Status"] == "passing"]) == len(nomad_clients):
@@ -26,6 +27,7 @@ def nomad_up():
             retries = retries - 1
             if retries <= 0:
                 raise Exception("nomad bootstrap error")
+
 
 if __name__ == "__main__":
     nomad_up()

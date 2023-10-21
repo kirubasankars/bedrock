@@ -1,7 +1,7 @@
 import re
 
-from utils import *
 from command_helper import *
+from utils import *
 
 
 def bootstrap_consul():
@@ -22,5 +22,6 @@ def bootstrap_consul():
             f.write("\n")
             f.write(f"CONSUL_ADDRESS=https://{host}:{const.CONSUL_HTTPS_PORT}\n")
             f.write(f"CONSUL_TOKEN={consul_token}\n")
+
 
 bootstrap_consul()

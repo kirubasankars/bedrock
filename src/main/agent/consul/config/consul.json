@@ -22,9 +22,9 @@
 
   "tls": {
     "defaults": {
-      "ca_file": "/opt/agent/certs/ca-public-key.pem",
-      "cert_file": "/opt/agent/certs/agent-public-key.pem",
-      "key_file": "/opt/agent/certs/agent-private-key.pem",
+      "ca_file": "/opt/agent/certs/ca.crt",
+      "cert_file": "/opt/agent/certs/agent.crt",
+      "key_file": "/opt/agent/certs/agent.key",
       "verify_incoming": true,
       "verify_outgoing": true,
       "tls_cipher_suites": "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"

@@ -1,6 +1,8 @@
 import time
-from utils import *
+
 from command_helper import *
+from utils import *
+
 
 def unseal():
     nodes = retrieve_host_ip_and_roles()
@@ -23,13 +25,13 @@ def unseal():
             requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/unseal",
                           json={"reset": True},
                           verify=const.PUBLIC_CERT,
-                          headers = {'X-Vault-Token': root_vault_token})
+                          headers={'X-Vault-Token': root_vault_token})
 
             for unseal_key in unseal_keys:
                 r = requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/unseal",
                                   json={"key": unseal_key},
                                   verify=const.PUBLIC_CERT,
-                                  headers = {'X-Vault-Token': root_vault_token})
+                                  headers={'X-Vault-Token': root_vault_token})
                 r.raise_for_status()
                 time.sleep(1)
 
@@ -38,6 +40,7 @@ def unseal():
             assert vault_health["initialized"] and not vault_health["sealed"]
 
     return True
+
 
 if __name__ == '__main__':
     unseal()

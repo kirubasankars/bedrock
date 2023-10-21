@@ -1,7 +1,7 @@
 import re
 
-from utils import *
 from command_helper import *
+from utils import *
 
 
 def bootstrap_nomad():
@@ -17,8 +17,7 @@ def bootstrap_nomad():
 """, host=nomad_server)
     if result.returncode == 0:
         stdout = result.stdout.decode('utf-8')
-#        with open("/workspace/nomad.out", "w") as f:
-#            f.write(stdout)
+
         secret_id_line = re.sub(r'\s+', ' ', stdout.split("\n")[1])
         nomad_token = secret_id_line.split(" ")[3]
 

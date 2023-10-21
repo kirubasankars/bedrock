@@ -1,7 +1,8 @@
-import command_helper
-import wait_for_machine
 import os
 import time
+
+import command_helper
+import wait_for_machine
 
 command_helper.command_remote("sh /opt/agent/bin/os_setup.sh")
 

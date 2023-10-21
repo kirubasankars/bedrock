@@ -1,6 +1,6 @@
+import const
 from command_helper import *
 from utils import *
-import const
 
 
 def connect_vault_nomad():
@@ -22,6 +22,7 @@ def connect_vault_nomad():
         vault write nomad/role/management type=management global=true
     """, vault_server)
 
+
 def connect_vault_consul():
     root_vault_token = get_vault_token()
     root_consul_token = get_consul_token()
@@ -40,6 +41,7 @@ def connect_vault_consul():
         vault write consul/roles/management policies=global-management ttl=1h
     """, vault_server)
 
+
 def setup_vault_kv():
     root_vault_token = get_vault_token()
     root_consul_token = get_consul_token()
@@ -55,9 +57,9 @@ def setup_vault_kv():
     nomad_integration_vault_token = r.json()["auth"]["client_token"]
 
     r = requests.put(f"https://{consul_server}:{const.CONSUL_HTTPS_PORT}/v1/acl/token",
-                      json={"Description": "nomad", "Policies": [{ "Name": "nomad-policy" }], "Local": False},
-                      verify=const.PUBLIC_CERT,
-                      headers={'X-Consul-Token': root_consul_token})
+                     json={"Description": "nomad", "Policies": [{"Name": "nomad-policy"}], "Local": False},
+                     verify=const.PUBLIC_CERT,
+                     headers={'X-Consul-Token': root_consul_token})
 
     nomad_integration_consul_token = r.json()["SecretID"]
 

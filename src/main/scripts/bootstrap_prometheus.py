@@ -1,5 +1,6 @@
 from utils import *
 
+
 def bootstrap_prometheus():
     nodes = retrieve_host_ip_and_roles()
     prometheus = [ip for ip, roles in nodes.items() if "prometheus" in roles]
@@ -10,5 +11,6 @@ def bootstrap_prometheus():
             f.write(f"PROMETHEUS_ADDR=https://{prometheus[0]}:{const.PROMETHEUS_PORT}\n")
             f.write(f"PROMETHEUS_USER=admin\n")
             f.write(f"PROMETHEUS_PASSWORD=admin\n")
+
 
 bootstrap_prometheus()
