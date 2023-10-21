@@ -14,9 +14,9 @@
   "bind_addr": "{{ GetInterfaceIP \"$INTERFACE_NAME\" }}",
   
   "tls": {
-    "ca_file": "/opt/agent/certs/ca-public-key.pem",
-    "cert_file": "/opt/agent/certs/agent-public-key.pem",
-    "key_file": "/opt/agent/certs/agent-private-key.pem",
+    "ca_file": "/opt/agent/certs/ca.crt",
+    "cert_file": "/opt/agent/certs/agent.crt",
+    "key_file": "/opt/agent/certs/agent.key",
     "http": true,
     "rpc": true,
     "verify_server_hostname": true,

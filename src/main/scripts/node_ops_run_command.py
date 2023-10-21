@@ -1,7 +1,7 @@
 import os
+import subprocess
 import sys
 import uuid
-import subprocess
 
 file_id = uuid.uuid4()
 with open(f"/tmp/{file_id}", "w") as f:

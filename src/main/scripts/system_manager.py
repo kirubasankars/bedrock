@@ -1,10 +1,11 @@
+import argparse
 import os
 import sys
 import uuid
-import utils
-import command_helper
-import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import command_helper
+import utils
 
 parser = argparse.ArgumentParser(description="Just an example", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-r", "--roles", help="filter hosts by roles", required=False, default="")
@@ -13,8 +14,9 @@ parser.add_argument("-i", "--ignore_error", help="ignore_error", required=False,
 parser.add_argument("-o", "--operation", help="action", required=True)
 args = parser.parse_args()
 
+
 def run(work_item):
-    host, command_group, operation  = work_item
+    host, command_group, operation = work_item
     image = os.getenv("IMAGE_NAME")
     workspace = os.getenv("WORKSPACE")
     name = f"""{command_group}-{host.replace(".", "-")}"""
@@ -28,6 +30,7 @@ def run(work_item):
         if output:
             print(output)
         command_helper.command_local(cmd=f"""docker rm {name}""")
+
 
 def main():
     command_group = uuid.uuid4()
@@ -48,13 +51,14 @@ def main():
 
     for work_items in work_list:
         with ThreadPoolExecutor(max_workers=max_concurrency) as executor:
-             futures = {executor.submit(run, item): item for item in work_items}
-             for future in as_completed(futures):
-                 try:
-                     future.result()
-                 except Exception as e:
-                     print(f"Exception occurred: {e}")
-                     if ignore_error == 0:
+            futures = {executor.submit(run, item): item for item in work_items}
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"Exception occurred: {e}")
+                    if ignore_error == 0:
                         sys.exit(1)
+
 
 main()

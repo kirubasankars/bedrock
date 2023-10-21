@@ -1,8 +1,10 @@
 import time
 
-from cert import *
 import requests
+
 import const
+from utils import *
+
 
 def vault_up():
     vault_servers = get_vault_servers()
@@ -25,6 +27,7 @@ def vault_up():
             retries = retries - 1
             if retries <= 0:
                 raise Exception("vault boostrap error")
+
 
 if __name__ == "__main__":
     vault_up()

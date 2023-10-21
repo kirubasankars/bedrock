@@ -1,7 +1,8 @@
 import socket
 import time
 
-def wait_for_machine(target_host, target_port = 22):
+
+def wait_for_machine(target_host, target_port=22):
     max_timeout = 120
     start_time = time.time()
 
@@ -28,4 +29,3 @@ def wait_for_machine(target_host, target_port = 22):
             else:
                 print(f"Waiting for {target_host}:{target_port} to become reachable...", flush=True)
             time.sleep(1)
-

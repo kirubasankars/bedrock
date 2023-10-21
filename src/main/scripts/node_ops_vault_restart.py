@@ -1,6 +1,6 @@
-from command_helper import *
-import wait_for_vault_sealed
 import unseal_vault
+import wait_for_vault_sealed
+from command_helper import *
 
 command_remote(f"""
     /usr/bin/systemctl restart vault

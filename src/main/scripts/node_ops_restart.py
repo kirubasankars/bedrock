@@ -22,5 +22,6 @@ def restart(name):
             /usr/bin/systemctl restart {name};
         """)
 
+
 command = os.getenv("OPERATION")
 restart(command.replace("_restart", ""))

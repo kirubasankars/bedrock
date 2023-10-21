@@ -1,5 +1,6 @@
-from utils import *
 from command_helper import *
+from utils import *
+
 
 def bootstrap_vault():
     nodes = retrieve_host_ip_and_roles()
@@ -13,8 +14,7 @@ def bootstrap_vault():
 
     if result.returncode == 0:
         stdout = result.stdout.decode('utf-8')
-        # with open("/workspace/vault.out", "w") as f:
-        #     f.write(stdout)
+
         vault_token = (stdout.split("\n")[6]).split(" ")[3]
 
         with open("/workspace/cluster_config.env", "a") as f:
@@ -25,5 +25,6 @@ def bootstrap_vault():
         with open("/workspace/vault_unseal_tokens.txt", "w") as f:
             for x in stdout.split("\n")[:5]:
                 f.write(x.split(" ")[3] + "\n")
+
 
 bootstrap_vault()

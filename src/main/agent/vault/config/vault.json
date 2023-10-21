@@ -7,11 +7,11 @@
       "retry_join" : [
         {
           "leader_api_addr": "https://$VAULT_NODE1:$VAULT_API_PORT",
-          "leader_ca_cert_file": "/opt/agent/certs/ca-public-key.pem"
+          "leader_ca_cert_file": "/opt/agent/certs/ca.crt"
         },
         {
           "leader_api_addr": "https://$VAULT_NODE2:$VAULT_API_PORT",
-          "leader_ca_cert_file": "/opt/agent/certs/ca-public-key.pem"
+          "leader_ca_cert_file": "/opt/agent/certs/ca.crt"
         }
       ]
     }
@@ -27,9 +27,9 @@
   "listener": {
     "tcp": {
       "address": "{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_API_PORT",
-      "tls_cert_file": "/opt/agent/certs/agent-public-key.pem",
-      "tls_key_file": "/opt/agent/certs/agent-private-key.pem",
-      "tls_client_ca_file": "/opt/agent/certs/ca-public-key.pem"
+      "tls_cert_file": "/opt/agent/certs/agent.crt",
+      "tls_key_file": "/opt/agent/certs/agent.key",
+      "tls_client_ca_file": "/opt/agent/certs/ca.crt"
     }
   },
   "cluster_addr": "https://{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_CLUSTER_PORT",

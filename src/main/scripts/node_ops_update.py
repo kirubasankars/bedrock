@@ -1,8 +1,12 @@
 import json
+import os
 import sys
 from pathlib import Path
-from cert import *
+
+import cert
+import command_helper
 import const
+import utils
 import vault
 
 
@@ -10,27 +14,29 @@ def get_host_id():
     with open("/opt/agent/node.txt", "r") as f:
         return f.read().strip()
 
+
 with open("/scripts/artifacts.json", "r") as f:
     versions = json.loads(f.read())
 
+
 def transpile():
     host_id = get_host_id()
-    interface_name = get_network_interface_name()
-    cluster_id = get_cluster_id()
+    interface_name = utils.get_network_interface_name()
+    cluster_id = utils.get_cluster_id()
 
     encryption_key = vault.get_kv_cluster_config("encryption_key")
     if not encryption_key:
-        encryption_key = get_encryption_key()
+        encryption_key = utils.get_encryption_key()
 
     nomad_integration_consul_token = vault.get_kv_cluster_config("nomad_integration_consul_token")
     if not nomad_integration_consul_token:
-        nomad_integration_consul_token = get_consul_token() or ""
+        nomad_integration_consul_token = utils.get_consul_token() or ""
 
     nomad_integration_vault_token = vault.get_kv_cluster_config("nomad_integration_vault_token")
     if not nomad_integration_vault_token:
-        nomad_integration_vault_token = get_vault_token() or ""
+        nomad_integration_vault_token = utils.get_vault_token() or ""
 
-    nodes = retrieve_host_ip_and_roles()
+    nodes = utils.retrieve_host_ip_and_roles()
     consul_servers = [ip for ip, roles in nodes.items() if "consul_server" in roles]
     vault_servers = [ip for ip, roles in nodes.items() if "vault_server" in roles]
     nomad_servers = [ip for ip, roles in nodes.items() if "nomad_server" in roles]
@@ -86,11 +92,12 @@ def transpile():
                 with open(f, 'w') as file:
                     file.write(content)
 
+
 def sync():
-    cluster_id = get_cluster_id()
+    cluster_id = utils.get_cluster_id()
     host = os.getenv("HOST")
 
-    command_local("""
+    command_helper.command_local("""
         rsync -r /workspace/artifacts/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins}  /agent
         mkdir -p /opt/agent/certs
         bash /scripts/rsync_remote_local.sh
@@ -103,20 +110,21 @@ def sync():
     with open(f"/opt/agent/cluster.txt", "w") as f:
         f.write(f"{cluster_id}")
 
-    if not os.path.isfile("/opt/agent/certs/agent-private-key.pem") or os.getenv("UPDATE_CERT", "0") == "1":
-        generate_agent_private()
-        generate_agent_csr(cluster_id)
-        generate_agent_public(f"DNS.1:localhost,DNS.2:server.{cluster_id}.consul,DNS.3:client.global.nomad,DNS.4:nomad.service.consul,DNS.5:server.global.nomad,DNS.6:vault.service.consul,IP.1:127.0.0.1,IP.2:{host}")
-        command_local(f"rm /opt/agent/certs/agent-csr.pem")
+    if not os.path.isfile("/opt/agent/certs/agent.key") or os.getenv("UPDATE_CERT", "0") == "1":
+        cert.generate_site_private("agent")
+        cert.generate_site_csr("agent", cluster_id)
+        cert.generate_site_public("agent",
+                                  f"DNS.1:localhost,DNS.2:server.{cluster_id}.consul,DNS.3:client.global.nomad,DNS.4:nomad.service.consul,DNS.5:server.global.nomad,DNS.6:vault.service.consul,IP.1:127.0.0.1,IP.2:{host}")
+        command_helper.command_local(f"rm /opt/agent/certs/agent.csr")
 
-    command_local(f"rsync /workspace/ca-public-key.pem /opt/agent/certs/")
+    command_helper.command_local(f"rsync /workspace/ca.crt /opt/agent/certs/")
 
-    nodes = retrieve_host_ip_and_roles()
+    nodes = utils.retrieve_host_ip_and_roles()
     roles = nodes.get(host, [])
     with open("/opt/agent/roles.txt", "w") as f:
         f.writelines("\n".join(roles))
 
-    command_local("""
+    command_helper.command_local("""
         touch /opt/agent/profile        
         rsync -r /agent/bin /opt/agent/
         rsync -r /agent/certs /opt/agent/
@@ -127,33 +135,33 @@ def sync():
     """)
 
     if "vault_server" in roles:
-        command_local("rsync -r /agent/vault /opt/agent/")
+        command_helper.command_local("rsync -r /agent/vault /opt/agent/")
 
     if "consul_server" in roles:
-        command_local("rsync -r --exclude='consul-client*' /agent/consul /opt/agent/")
-        command_local("rsync -r /agent/resolved /opt/agent/")
+        command_helper.command_local("rsync -r --exclude='consul-client*' /agent/consul /opt/agent/")
+        command_helper.command_local("rsync -r /agent/resolved /opt/agent/")
 
     if "consul_client" in roles:
-        command_local("rsync -r --exclude='consul-server*' /agent/consul /opt/agent/")
-        command_local("rsync -r /agent/resolved /opt/agent/")
+        command_helper.command_local("rsync -r --exclude='consul-server*' /agent/consul /opt/agent/")
+        command_helper.command_local("rsync -r /agent/resolved /opt/agent/")
 
     if "nomad_server" in roles:
-        command_local("rsync -r --exclude='nomad-client*' /agent/nomad /opt/agent/")
-        command_local("mv /opt/agent/nomad/config/nomad-server.env /opt/agent/nomad/config/nomad.env")
+        command_helper.command_local("rsync -r --exclude='nomad-client*' /agent/nomad /opt/agent/")
+        command_helper.command_local("mv /opt/agent/nomad/config/nomad-server.env /opt/agent/nomad/config/nomad.env")
 
     if "nomad_client" in roles:
         nomad_roles = roles.copy()
         nomad_roles.remove("telegraf")
         nomad_roles.remove("filebeat")
-        command_local("rsync -r --exclude='nomad-server*' /agent/nomad /opt/agent/")
+        command_helper.command_local("rsync -r --exclude='nomad-server*' /agent/nomad /opt/agent/")
         with open("/opt/agent/nomad/config/nomad-meta.json", "w") as f:
-            f.write(json.dumps({"client": {"meta": [{x : "true" for x in list(set(nomad_roles))}]}}, indent=4))
+            f.write(json.dumps({"client": {"meta": [{x: "true" for x in list(set(nomad_roles))}]}}, indent=4))
 
     if "prometheus" in roles:
-        command_local("rsync -r /agent/prometheus /opt/agent/")
+        command_helper.command_local("rsync -r /agent/prometheus /opt/agent/")
 
     if "jenkins" in roles:
-        command_local("rsync -r /agent/jenkins /opt/agent/")
+        command_helper.command_local("rsync -r /agent/jenkins /opt/agent/")
 
     transpile()
 
@@ -173,13 +181,14 @@ def sync():
             f.writelines(f"alias vault=/opt/agent/vault/bin/{versions['vault_version']}/vault\n")
             f.writelines(f"export VAULT_ADDR=https://{host}:{const.VAULT_API_PORT}\n")
 
-    command_local("""        
+    command_helper.command_local("""        
         bash /scripts/rsync_local_remote.sh        
     """)
 
-    r = command_file_remote("/scripts/setup_sync_node.sh")
+    r = command_helper.command_file_remote("/scripts/setup_sync_node.sh")
     if r.returncode != 0:
         print(r.stderr.decode('utf-8'))
         sys.exit(r.returncode)
+
 
 sync()
