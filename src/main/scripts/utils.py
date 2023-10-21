@@ -20,6 +20,9 @@ def get_consul_token():
 def get_vault_token():
     return os.getenv("VAULT_TOKEN", "")
 
+def get_nomad_token():
+    return os.getenv("NOMAD_TOKEN", "")
+
 def custom_sort_order(element):
     custom_order_list = [
         'telegraf',
