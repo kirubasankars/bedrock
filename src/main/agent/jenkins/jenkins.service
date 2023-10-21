@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Type=notify
 NotifyAccess=main
-ExecStart=java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -jar /opt/agent/jenkins/bin/jenkins.war
+ExecStart=java -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true -Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -jar /opt/agent/jenkins/bin/$JENKINS_VERSION/jenkins.war
 Restart=on-failure
 SuccessExitStatus=143
 

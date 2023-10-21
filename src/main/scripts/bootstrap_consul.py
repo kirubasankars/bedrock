@@ -9,7 +9,10 @@ def bootstrap_consul():
     consul_servers = [ip for ip, roles in nodes.items() if "consul_server" in roles]
 
     host = consul_servers[0]
-    result = command_remote("/opt/agent/consul/bin/consul acl bootstrap", host=host)
+    result = command_remote("""
+        source /opt/agent/profile
+        consul acl bootstrap
+    """, host=host)
 
     if result.returncode == 0:
         secret_id_line = re.sub(r'\s+', ' ', result.stdout.decode('utf-8').split("\n")[1])
