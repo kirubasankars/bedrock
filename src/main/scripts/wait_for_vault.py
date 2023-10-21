@@ -12,7 +12,7 @@ def vault_up():
     while True:
         try:
             r = requests.get(f"https://{consul_server}:{const.CONSUL_HTTPS_PORT}/v1/health/checks/vault",
-                             verify='/workspace/ca-public-key.pem')
+                             verify=const.PUBLIC_CERT)
             r.raise_for_status()
             data = r.json()
             if len([x for x in data if x["Status"] == "passing"]) == len(vault_servers):

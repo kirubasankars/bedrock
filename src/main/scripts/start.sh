@@ -11,12 +11,6 @@ export NETWORK_INTERFACE_NAME=${NETWORK_INTERFACE_NAME:-"eth0"}
 export UPDATE_CERT=${UPDATE_CERT:="0"}
 export SSH_USER=${SSH_USER:-""}
 export SSH_KEY=${SSH_KEY:-""}
-
-# shellcheck disable=SC2046
-eval $(ssh-agent -s) > /dev/null
-ssh-add /workspace/"${SSH_KEY}" 2> /dev/null
-echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config
-
 image_name=$(docker inspect --format='{{.Config.Image}}' "$HOSTNAME")
 export IMAGE_NAME=$image_name
 export NODE_OPS=${NODE_OPS:-"0"}
@@ -24,6 +18,12 @@ export NODE_OPS=${NODE_OPS:-"0"}
 export CONSUL_TOKEN=${CONSUL_TOKEN:-""}
 export VAULT_TOKEN=${VAULT_TOKEN:-""}
 export ENCRYPTION_KEY=${ENCRYPTION_KEY:-""}
+export NOMAD_TOKEN=${NOMAD_TOKEN:-""}
+
+# shellcheck disable=SC2046
+eval $(ssh-agent -s) > /dev/null
+ssh-add /workspace/"${SSH_KEY}" 2> /dev/null
+echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config
 
 if [ "$NODE_OPS" == "1" ]; then
   python3 /scripts/"node_ops_$OPERATION".py
@@ -56,14 +56,18 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/bootstrap_vault.py
   python3 /scripts/unseal_vault.py
   python3 /scripts/wait_for_vault.py
+
   source  /workspace/cluster_config.env
   export VAULT_TOKEN=${VAULT_TOKEN:-""}
+
   python3 /scripts/vault_enablement.py
   python3 /scripts/bootstrap_consul.py
+
   source  /workspace/cluster_config.env
   export VAULT_TOKEN=${VAULT_TOKEN:-""}
   export CONSUL_TOKEN=${CONSUL_TOKEN:-""}
   export ENCRYPTION_KEY=${ENCRYPTION_KEY:-""}
+
   python3 /scripts/system_manager.py --operation update
   python3 /scripts/system_manager.py --roles nomad_server --operation nomad_up && sleep 15
   python3 /scripts/system_manager.py --roles nomad_client --operation nomad_up
@@ -73,6 +77,11 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   source  /workspace/cluster_config.env
   export NOMAD_TOKEN=${NOMAD_TOKEN:-""}
   python3 /scripts/connect_vault.py
+
+  python3 /scripts/system_manager.py --roles cluster --operation update
+  python3 /scripts/system_manager.py --roles nomad_server --operation nomad_restart
+  python3 /scripts/system_manager.py --roles nomad_client --operation nomad_restart
+
   python3 /scripts/bootstrap_prometheus.py
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "update" ]; then

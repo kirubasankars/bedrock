@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from cert import *
 import const
+import vault
 
 
 def get_host_id():
@@ -16,9 +17,18 @@ def transpile():
     host_id = get_host_id()
     interface_name = get_network_interface_name()
     cluster_id = get_cluster_id()
-    encryption_key = get_encryption_key()
-    consul_token = get_consul_token()
-    vault_token = get_vault_token()
+
+    encryption_key = vault.get_kv_cluster_config("encryption_key")
+    if not encryption_key:
+        encryption_key = get_encryption_key()
+
+    nomad_integration_consul_token = vault.get_kv_cluster_config("nomad_integration_consul_token")
+    if not nomad_integration_consul_token:
+        nomad_integration_consul_token = get_consul_token() or ""
+
+    nomad_integration_vault_token = vault.get_kv_cluster_config("nomad_integration_vault_token")
+    if not nomad_integration_vault_token:
+        nomad_integration_vault_token = get_vault_token() or ""
 
     nodes = retrieve_host_ip_and_roles()
     consul_servers = [ip for ip, roles in nodes.items() if "consul_server" in roles]
@@ -33,8 +43,6 @@ def transpile():
         vault_servers.append(vault_servers[0])
 
     targets = json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()])
-
-
 
     for ext in ["*.json", "*.service", "*.conf", "*.yml", "*.env"]:
         for f in Path('/opt/agent/').rglob(ext):
@@ -63,8 +71,8 @@ def transpile():
             content = content.replace('$CONSUL_HTTPS_PORT', const.CONSUL_HTTPS_PORT)
             content = content.replace('$NOMAD_PORT', const.VAULT_API_PORT)
             content = content.replace('$TARGETS', targets)
-            content = content.replace('$CONSUL_TOKEN', consul_token)
-            content = content.replace('$VAULT_TOKEN', vault_token)
+            content = content.replace('$NOMAD_INTEGRATION_CONSUL_TOKEN', nomad_integration_consul_token)
+            content = content.replace('$NOMAD_INTEGRATION_VAULT_TOKEN', nomad_integration_vault_token)
 
             content = content.replace('$NOMAD_VERSION', versions["nomad_version"])
             content = content.replace('$CONSUL_VERSION', versions["consul_version"])
