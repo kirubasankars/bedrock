@@ -14,18 +14,18 @@ command_helper.command_local("""
     bash /scripts/rsync_remote_local.sh    
 """)
 
-file_path = "/opt/agent/host.txt"
+file_path = "/opt/agent/node.txt"
 
 if not os.path.exists(file_path):
     with open(file_path, "w") as f:
         f.write(str(uuid.uuid4()))
 
     command_helper.command_local("""
-        rsync -r /agent/infra /opt/agent/
+        rsync -r /agent/bin /opt/agent/
         bash /scripts/rsync_local_remote.sh              
     """)
 
-    command_helper.command_remote("sh /opt/agent/infra/bin/setup.sh")
+    command_helper.command_remote("sh /opt/agent/bin/os_setup.sh")
 
     try:
         command_helper.command_remote("""            

@@ -6,7 +6,7 @@ import const
 
 
 def get_host_id():
-    with open("/opt/agent/host.txt", "r") as f:
+    with open("/opt/agent/node.txt", "r") as f:
         return f.read().strip()
 
 with open("/scripts/artifacts.json", "r") as f:
@@ -88,8 +88,8 @@ def sync():
         bash /scripts/rsync_remote_local.sh
     """)
 
-    if not os.path.isfile("/opt/agent/host.txt"):
-        print("/opt/agent/host.txt is not found")
+    if not os.path.isfile("/opt/agent/node.txt"):
+        print("/opt/agent/node.txt is not found")
         sys.exit(1)
 
     with open(f"/opt/agent/cluster.txt", "w") as f:
@@ -109,7 +109,7 @@ def sync():
         f.writelines("\n".join(roles))
 
     command_local("""
-        touch /opt/agent/profile
+        touch /opt/agent/profile        
         rsync -r /agent/bin /opt/agent/
         rsync -r /agent/certs /opt/agent/
         rsync -r /agent/telegraf /opt/agent/

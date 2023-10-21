@@ -6,7 +6,7 @@ import time
 command_helper.command_remote("""
     mkdir -p /opt/agent;
     if ! test -f /opt/agent/node.txt; then        
-        uuidgen > /opt/agent/host.txt
+        uuidgen > /opt/agent/node.txt
     fi
 """)
 
@@ -18,7 +18,7 @@ command_helper.command_local("""
 """)
 
 command_helper.command_remote("""
-    sh /opt/agent/jenkins/bin/infra_setup.sh
+    sh /opt/agent/jenkins/bin/os_setup.sh
 """)
 
 try:

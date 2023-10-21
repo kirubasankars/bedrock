@@ -15,4 +15,4 @@ usermod -aG docker agent || true
 
 mkdir -p /opt/agent
 
-uuidgen > /opt/agent/host.txt
+uuidgen > /opt/agent/node.txt
