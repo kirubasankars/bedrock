@@ -5,11 +5,7 @@ from utils import *
 
 
 def bootstrap_nomad():
-    nomad_token = ""
-    nodes = retrieve_host_ip_and_roles()
-    nomad_servers = [ip for ip, roles in nodes.items() if "nomad_server" in roles]
-
-    nomad_server = nomad_servers[0]
+    nomad_server = get_nomad_server_0()
 
     result = command_remote(cmd=f"""
     source /opt/agent/profile

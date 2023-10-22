@@ -5,8 +5,7 @@ from utils import *
 
 
 def unseal():
-    nodes = retrieve_host_ip_and_roles()
-    vault_servers = [ip for ip, roles in nodes.items() if "vault_server" in roles]
+    vault_servers = get_vault_servers()
     if not os.path.isfile("/workspace/vault_unseal_tokens.txt"):
         return False
 
@@ -20,7 +19,7 @@ def unseal():
         r = requests.get(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/health", verify=const.PUBLIC_CERT)
         vault_health = r.json()
 
-        if vault_health["initialized"] and vault_health["sealed"]:
+        if vault_health["sealed"]:
 
             requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/unseal",
                           json={"reset": True},
@@ -38,6 +37,7 @@ def unseal():
             vault_health = requests.get(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/health",
                                         verify=const.PUBLIC_CERT).json()
             assert vault_health["initialized"] and not vault_health["sealed"]
+        time.sleep(15) # this allows vault to sync up
 
     return True
 

@@ -1,5 +1,5 @@
 IMAGE="dbman"
-JENKINS=192.168.1.177
+JENKINS=192.168.1.124
 
 build:
 	docker build -t $(IMAGE) ./src/main
@@ -39,15 +39,14 @@ run_command:
 	docker run --rm --privileged -e OPERATION=run_command -e WORKSPACE=$(PWD)/workspace -e MAX_CONCURRENCY=1 -e IGNORE_ERROR=0 -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
 setup_jenkins:
-	rsync -r $(PWD)/src/main/distro root@$(JENKINS):/
-	rsync -r $(PWD)/workspace/nodes.txt root@$(JENKINS):/
-	docker run --rm --privileged -e OPERATION=setup_jenkins -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
-	git remote rm jenkins || true
-	git remote add jenkins root@$(JENKINS):/build.git || true
-	git push jenkins main:master || true
+	docker run --rm --privileged -e OPERATION=jenkins -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
 push:
-	git push jenkins main:master || true
+	rsync -a -r $(PWD)/workspace root@$(JENKINS):/
+	ssh root@$(JENKINS) "chown -R agent:agent /workspace"
+	git remote rm jenkins || true
+	git remote add jenkins root@$(JENKINS):/build.git || true
+	git push -f jenkins -f main:master || true
 
 publish:
 	docker tag $(IMAGE) $(JENKINS):5000/$(IMAGE):1.0

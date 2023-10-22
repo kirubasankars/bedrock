@@ -50,8 +50,12 @@ def command_remote(cmd, host=None):
     env = os.environ.copy()
     if host:
         env.setdefault("HOST", host)
-    return command_local(f"ssh -o StrictHostKeyChecking=no -o LogLevel=error $SSH_USER@$HOST 'sh -s' < {file_path}",
-                         env=env)
+    try:
+        return command_local(f"ssh -o StrictHostKeyChecking=no -o LogLevel=error $SSH_USER@$HOST 'sh -s' < {file_path}",
+                             env=env)
+    except Exception as e:
+        print(env)
+        raise e
 
 
 def command_file_remote(file_path, host=None):

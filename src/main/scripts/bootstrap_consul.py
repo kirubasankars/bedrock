@@ -5,14 +5,12 @@ from utils import *
 
 
 def bootstrap_consul():
-    nodes = retrieve_host_ip_and_roles()
-    consul_servers = [ip for ip, roles in nodes.items() if "consul_server" in roles]
+    consul_server = get_consul_server_0()
 
-    host = consul_servers[0]
     result = command_remote("""
         source /opt/agent/profile
         consul acl bootstrap
-    """, host=host)
+    """, host=consul_server)
 
     if result.returncode == 0:
         secret_id_line = re.sub(r'\s+', ' ', result.stdout.decode('utf-8').split("\n")[1])
@@ -20,7 +18,7 @@ def bootstrap_consul():
 
         with open("/workspace/cluster_config.env", "a") as f:
             f.write("\n")
-            f.write(f"CONSUL_ADDRESS=https://{host}:{const.CONSUL_HTTPS_PORT}\n")
+            f.write(f"CONSUL_ADDRESS=https://{consul_server}:{const.CONSUL_HTTPS_PORT}\n")
             f.write(f"CONSUL_TOKEN={consul_token}\n")
 
 

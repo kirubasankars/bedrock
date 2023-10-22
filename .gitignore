@@ -2,5 +2,5 @@
 .idea/
 workspace
 venv
-todo.txt
+workspace/todo.txt
 __pycache__

@@ -30,6 +30,9 @@ def connect_vault_consul():
     vault_server = get_vault_server_0()
     consul_server = get_consul_server_0()
 
+    if not vault_server:
+        return
+
     command_remote(f"""
         source /opt/agent/profile
         export VAULT_TOKEN={root_vault_token}        
@@ -49,6 +52,9 @@ def setup_vault_kv():
     vault_server = get_vault_server_0()
     consul_server = get_consul_server_0()
     encryption_key = get_encryption_key()
+
+    if not vault_server:
+        return
 
     r = requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/auth/token/create-orphan",
                       json={"policies": ["nomad-server", "default"], "ttl": "72h", "renewable": True},

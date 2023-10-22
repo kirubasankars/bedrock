@@ -53,7 +53,9 @@ def custom_sort_order(element):
 def retrieve_host_ip_and_roles(host_filter=None):
     with open("/workspace/hosts.txt", "r") as f:
         filedata = f.read()
+
     lines = [x.strip() for x in filedata.split("\n") if x.strip()]
+
     nodes = {}
     for line in lines:
         s = line.split(" ")
@@ -63,14 +65,11 @@ def retrieve_host_ip_and_roles(host_filter=None):
             nodes[s[0]] = []
 
     for host, roles in nodes.items():
-        roles.extend(["telegraf", "filebeat", "consul_client", "cluster"])
+        roles.extend(["telegraf", "filebeat"])
+        if "nomad_client" in roles or "nomad_server" in roles or "vault_server" in roles or "jenkins" in roles:
+            roles.append("consul_client")
+
         roles = list(set(roles))
-
-        if "consul_server" in roles or "jenkins" in roles:
-            roles.remove("consul_client")
-
-        if "jenkins" in roles:
-            roles.remove("cluster")
 
         nodes[host] = sorted(roles, key=custom_sort_order)
 

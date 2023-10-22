@@ -4,7 +4,7 @@ import sys
 
 def get_hosts():
     hosts = []
-    with open("/workspace/nodes.txt", "r") as f:
+    with open("/workspace/hosts.txt", "r") as f:
         lines = [x for x in f.read().split("\n")  if len(x.strip()) > 0]
         for line in lines:
             if "jenkins" in line:
@@ -81,18 +81,18 @@ hosts = get_hosts()
 clusters = get_clusters()
 random.seed(1)
 
-with open(f"/workspace/nodes.txt", "r") as f:
+with open(f"/workspace/hosts.txt", "r") as f:
     nodes_txt = f.read()
 
 for cluster in clusters:
-    with open(f"/workspace/nodes.txt", "w") as f:
+    with open(f"/workspace/hosts.txt", "w") as f:
         f.write(nodes_txt)
 
     r = subprocess.run(["make", "cleanup"])
 
     print("-----")
     cluster_nodes = []
-    for step in cluster:
+    for index, step in enumerate(cluster):
         available_hosts = list(set(cluster_nodes) ^ (set(hosts)))
         if len(available_hosts) >= (len(step) - len(cluster_nodes)):
             selected_hosts = random.sample(population=available_hosts, k=len(step) - len(cluster_nodes))
@@ -105,10 +105,13 @@ for cluster in clusters:
 
             print(nodes)
 
-            with open(f"/workspace/nodes.txt", "w") as f:
+            with open(f"/workspace/hosts.txt", "w") as f:
                 f.write("\n".join(nodes))
 
-            r = subprocess.run(["make", "cleanup", "setup", "restart", "down", "up"])
+            if index == 0:
+                r = subprocess.run(["make", "cleanup", "bootstrap", "restart", "down", "up"])
+            else:
+                r = subprocess.run(["make", "update", "restart", "down", "up"])
 
             if r.returncode != 0:
                 sys.exit(r.returncode)

@@ -3,10 +3,8 @@ from utils import *
 
 
 def bootstrap_vault():
-    nodes = retrieve_host_ip_and_roles()
-    vault_servers = [ip for ip, roles in nodes.items() if "vault_server" in roles]
+    vault_server = get_vault_server_0()
 
-    vault_server = vault_servers[0]
     result = command_remote(f"""
         source /opt/agent/profile
         vault operator init -address='https://{vault_server}:{const.VAULT_API_PORT}'

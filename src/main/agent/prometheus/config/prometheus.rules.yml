@@ -1,11 +1,10 @@
 groups:
   - name: default
     rules:
-      - alert: TargetMissing
+      - alert: node_down
         expr: up == 0
         for: 1m
         labels:
           severity: critical
         annotations:
-          summary: “Prometheus Target Missing (instance {{ $labels.instance }})”
-          description: “A Prometheus Target has gone missing, please investigate”
+          summary: “node_down (instance {{ $labels.instance }})”

@@ -26,8 +26,9 @@ def test_nomad():
 
 
 def test_vault_boostrap():
-    r = get_consul_health_check("vault")
-    assert len(r) == len(get_vault_servers())
+    if get_consul_servers():
+        r = get_consul_health_check("vault")
+        assert len(r) == len(get_vault_servers())
 
 
 def test_consul_boostrap():

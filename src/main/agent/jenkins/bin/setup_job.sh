@@ -2,7 +2,7 @@
 set -ueo pipefail
 
 function wait_for_jenkins() {
-    JENKINS_URL="http://0.0.0.0:8080"
+    JENKINS_URL="http://0.0.0.0:8081"
     WAIT_TIME_SECONDS=15
 
     while :; do
@@ -20,7 +20,7 @@ function wait_for_jenkins() {
 
 wait_for_jenkins
 
-sleep 10 && cd /tmp && wget http://0.0.0.0:8080/jnlpJars/jenkins-cli.jar || true
+sleep 10 && cd /tmp && wget http://0.0.0.0:8081/jnlpJars/jenkins-cli.jar || true
 
-java -jar /tmp/jenkins-cli.jar -s http://0.0.0.0:8080/ create-job build < /opt/agent/jenkins/config/build.xml
-java -jar /tmp/jenkins-cli.jar -s http://0.0.0.0:8080/ create-job release < /opt/agent/jenkins/config/release.xml
+java -jar /tmp/jenkins-cli.jar -s http://0.0.0.0:8081/ create-job build < /opt/agent/jenkins/config/build.xml
+java -jar /tmp/jenkins-cli.jar -s http://0.0.0.0:8081/ create-job release < /opt/agent/jenkins/config/release.xml

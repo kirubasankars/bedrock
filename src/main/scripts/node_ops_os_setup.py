@@ -29,9 +29,9 @@ if not os.path.exists(file_path):
 
     try:
         command_helper.command_remote("""            
-            if needs-restarting -r; then 
+            if ! needs-restarting -r >/dev/null; then
                 echo "Reboot is needed. Initiating reboot..."
-                reboot now
+                sudo reboot
             else
                 echo "No reboot is needed."
             fi
