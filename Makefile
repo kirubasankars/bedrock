@@ -1,4 +1,4 @@
-IMAGE="dbman"
+IMAGE="bedrock"
 JENKINS=192.168.1.124
 
 build:
@@ -15,7 +15,7 @@ bootstrap:
 	docker run --rm --privileged -e OPERATION=bootstrap -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
 update:
-	docker run --rm --privileged -e OPERATION=update -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
+	docker run --rm --privileged -e OPERATION=update -e WORKSPACE=$(PWD)/workspace -e MAX_CONCURRENCY=2 -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
 os_patching:
 	docker run --rm --privileged -e OPERATION=os_patching -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
