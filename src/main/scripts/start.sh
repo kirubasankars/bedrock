@@ -43,7 +43,7 @@ elif [ "$OPERATION" == "validate" ]; then
 elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/initialize.py
   python3 /scripts/system_manager.py --operation os_setup
-  python3 /scripts/system_manager.py --operation update --concurrency 2
+  python3 /scripts/system_manager.py --concurrency 2 --operation update
   python3 /scripts/system_manager.py --operation telegraf_up
   python3 /scripts/system_manager.py --operation filebeat_up
   grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_up
@@ -63,7 +63,7 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   export VAULT_TOKEN=${VAULT_TOKEN:-""}
   export CONSUL_TOKEN=${CONSUL_TOKEN:-""}
   export ENCRYPTION_KEY=${ENCRYPTION_KEY:-""}
-  python3 /scripts/system_manager.py --operation update --concurrency 2
+  python3 /scripts/system_manager.py --concurrency 2 --operation update
   python3 /scripts/system_manager.py --roles nomad_server --operation nomad_up && sleep 15
   python3 /scripts/system_manager.py --roles nomad_client --operation nomad_up
   python3 /scripts/wait_for_nomad.py
@@ -72,14 +72,14 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   source  /workspace/cluster_config.env
   export NOMAD_TOKEN=${NOMAD_TOKEN:-""}
   python3 /scripts/connect_vault.py
-  python3 /scripts/system_manager.py --operation update --concurrency 2
+  python3 /scripts/system_manager.py --concurrency 2 --operation update
   python3 /scripts/system_manager.py --roles nomad_server --operation nomad_restart && sleep 15
   python3 /scripts/system_manager.py --roles nomad_client --operation nomad_restart
   grep prometheus /workspace/host.txt && python3 /scripts/bootstrap_prometheus.py
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "update" ]; then
   python3 /scripts/system_manager.py --operation os_setup
-  python3 /scripts/system_manager.py --operation update --concurrency 2
+  python3 /scripts/system_manager.py --concurrency 2 --operation update
 elif [ "$OPERATION" == "os_patching" ]; then
   python3 /scripts/system_manager.py --roles cluster --operation os_patching --concurrency 1
 elif [ "$OPERATION" == "restart" ]; then
