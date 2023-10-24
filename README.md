@@ -11,8 +11,7 @@ Embark on this comprehensive guide to configure your cluster using Bedrock:
    ```
    192.168.1.177 nomad_server,consul_server,vault_server,nomad_client,prometheus
    ```
-
-   Here, each line should comprise an IP address, followed by a comma-separated list of roles. These roles play a crucial part in determining the specific configurations applied to the respective machine.
+   Roles permitted include nomad_server, consul_server, vault_server, nomad_client, prometheus, and jenkins. You are free to assign multiple IP addresses and rearrange roles as necessary. This configuration plays a pivotal role in determining the specific settings applied to each machine.
 
 4. Transfer your SSH keys to the workspace folder, ensuring that the host machines are accessible via this key.
 
