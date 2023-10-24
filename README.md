@@ -1,3 +1,5 @@
+Not ready yet
+
 Bedrock emerges as a sophisticated and holistic solution designed for infrastructure provisioning, adeptly supporting the seamless creation and management of clusters integrated with Nomad, Consul, and Vault nodes. Each node within this robust cluster is meticulously equipped with Telegraf, ensuring real-time monitoring capabilities are at your fingertips. Furthermore, the integration of Prometheus monitoring nodes with Telegraf is streamlined, while Filebeat is expertly configured to relay logs to an OpenSearch instance. Bedrock stands out with its advanced functionalities for managing software updates and cluster upgrades, ensuring your system remains secure and up-to-date. Both the setup process and the management command-line interface (CLI) are ingeniously built on Docker, employing Docker commands executed via a Makefile.
 
 Embark on this comprehensive guide to configure your cluster using Bedrock:
