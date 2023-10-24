@@ -2,11 +2,11 @@ Bedrock emerges as a sophisticated and holistic solution designed for infrastruc
 
 Embark on this comprehensive guide to configure your cluster using Bedrock:
 
-0. Clone the repository from https://github.com/kirubasankars/bedrock 
+1. Clone the repository from https://github.com/kirubasankars/bedrock 
 
-1. Inside the cloned directory, create a new folder named "workspace."
+2. Inside the cloned directory, create a new folder named "workspace."
 
-2. Within the "workspace" folder, generate a file named "hosts.txt" and format it as follows:
+3. Within the "workspace" folder, generate a file named "hosts.txt" and format it as follows:
 
    ```
    192.168.1.177 nomad_server,consul_server,vault_server,nomad_client,prometheus
@@ -14,24 +14,24 @@ Embark on this comprehensive guide to configure your cluster using Bedrock:
 
    Here, each line should comprise an IP address, followed by a comma-separated list of roles. These roles play a crucial part in determining the specific configurations applied to the respective machine.
 
-3. Transfer your SSH keys to the workspace folder, ensuring that the host machines are accessible via this key.
+4. Transfer your SSH keys to the workspace folder, ensuring that the host machines are accessible via this key.
 
-4. Create a file named "variables.env" and populate it with the following content:
+5. Create a file named "variables.env" and populate it with the following content:
 
-```
-CLUSTER_ID=clustername # Define the cluster name
-NETWORK_INTERFACE_NAME="enp0s3" # Specify the network interface for hosting services
-SSH_USER="root" # Set the SSH user
-SSH_KEY=homelab.key  # Indicate the SSH key name for login
-```
+   ```
+   CLUSTER_ID=clustername # Define the cluster name
+   NETWORK_INTERFACE_NAME="enp0s3" # Specify the network interface for hosting services
+   SSH_USER="root" # Set the SSH user
+   SSH_KEY=homelab.key  # Indicate the SSH key name for login
+   ```
 
-5. Download the required binary artifacts using the following command, and make sure to place Nomad, Consul, Vault, Jenkins, and other necessary binary files inside the "artifacts" folder within "workspace":
+6. Download the required binary artifacts using the following command, and make sure to place Nomad, Consul, Vault, Jenkins, and other necessary binary files inside the "artifacts" folder within "workspace":
 
-```
-make download_artifacts
-```
+   ```
+   make download_artifacts
+   ```
 
-6. Initiate the cluster configuration by running:
+7. Initiate the cluster configuration by running:
 
    ```
    make bootstrap
