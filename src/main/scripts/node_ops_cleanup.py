@@ -3,7 +3,7 @@ from command_helper import *
 
 def main():
     command_remote("""
-        for x in consul nomad vault telegraf prometheus jenkins; do
+        for x in consul nomad vault telegraf prometheus jenkins grafana; do
           if test -f /usr/lib/systemd/system/$x.service; then
             /usr/bin/systemctl disable $x || true
             /usr/bin/systemctl stop $x    || true

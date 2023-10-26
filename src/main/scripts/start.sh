@@ -33,7 +33,7 @@ fi
 if [ "$OPERATION" == "download_artifacts" ]; then
   rm -fr /workspace/downloads
   mkdir -p /workspace/downloads
-  bash /scripts/download_distro.sh
+  bash /scripts/download_artifacts.sh
   bash /scripts/extract.sh
 elif [ "$OPERATION" == "cleanup" ]; then
   rm -f /workspace/{ca-*.pem,cluster_config.env,vault_unseal*.txt}
@@ -46,7 +46,6 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/system_manager.py --concurrency 2 --operation update
   python3 /scripts/system_manager.py --operation telegraf_up
   python3 /scripts/system_manager.py --operation filebeat_up
-  grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_up
   python3 /scripts/system_manager.py --roles consul_server --operation consul_up && sleep 15
   python3 /scripts/system_manager.py --roles consul_client --operation consul_up
   python3 /scripts/wait_for_consul.py
@@ -75,7 +74,8 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/system_manager.py --concurrency 2 --operation update
   python3 /scripts/system_manager.py --roles nomad_server --operation nomad_restart && sleep 15
   python3 /scripts/system_manager.py --roles nomad_client --operation nomad_restart
-  grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_restart
+  grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_up
+  grep grafana /workspace/hosts.txt && python3 /scripts/system_manager.py --roles grafana --operation grafana_up
   grep prometheus /workspace/hosts.txt && python3 /scripts/bootstrap_prometheus.py
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "update" ]; then
@@ -87,6 +87,7 @@ elif [ "$OPERATION" == "restart" ]; then
   python3 /scripts/system_manager.py --roles telegraf --operation telegraf_restart
   python3 /scripts/system_manager.py --roles filebeat --operation filebeat_restart
   grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_restart
+  grep grafana /workspace/hosts.txt && python3 /scripts/system_manager.py --roles grafana --operation grafana_restart
   python3 /scripts/system_manager.py --roles consul_server --operation consul_restart --concurrency 1
   python3 /scripts/system_manager.py --roles consul_client --operation consul_restart
   python3 /scripts/system_manager.py --roles vault_server --operation vault_restart --concurrency 1
@@ -98,6 +99,7 @@ elif [ "$OPERATION" == "up" ]; then
   python3 /scripts/system_manager.py --roles telegraf --operation telegraf_up
   python3 /scripts/system_manager.py --roles filebeat --operation filebeat_up
   grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_up
+  grep grafana /workspace/hosts.txt && python3 /scripts/system_manager.py --roles grafana --operation grafana_up
   python3 /scripts/system_manager.py --roles consul_server --operation consul_up && sleep 15
   python3 /scripts/system_manager.py --roles consul_client --operation consul_up
   python3 /scripts/wait_for_consul.py
@@ -112,6 +114,7 @@ elif [ "$OPERATION" == "up" ]; then
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "down" ]; then
   grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_down
+  grep grafana /workspace/hosts.txt && python3 /scripts/system_manager.py --roles grafana --operation grafana_down
   python3 /scripts/system_manager.py --roles nomad_server --operation nomad_down
   python3 /scripts/system_manager.py --roles nomad_client --operation nomad_down
   python3 /scripts/system_manager.py --roles vault_server --operation vault_down

@@ -97,6 +97,7 @@ def transpile():
             content = content.replace('$FILEBEAT_VERSION', versions["filebeat_version"])
             content = content.replace('$PROMETHEUS_VERSION', versions["prometheus_version"])
             content = content.replace('$JENKINS_VERSION', versions["jenkins_version"])
+            content = content.replace('$GRAFANA_VERSION', versions["grafana_version"])
 
             content = content.replace('$ALL_TARGETS',
                                       json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()]))
@@ -129,7 +130,7 @@ def sync():
     host = os.getenv("HOST")
 
     command_helper.command_local("""
-        rsync -r /workspace/artifacts/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins}  /agent
+        rsync -r /workspace/artifacts/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins,grafana}  /agent
         mkdir -p /opt/agent/certs
         bash /scripts/rsync_remote_local.sh
     """)
@@ -190,6 +191,9 @@ def sync():
 
     if "prometheus" in roles:
         command_helper.command_local("rsync -r /agent/prometheus /opt/agent/")
+
+    if "grafana" in roles:
+        command_helper.command_local("rsync -r /agent/grafana /opt/agent/")
 
     if "jenkins" in roles:
         command_helper.command_local("rsync -r /agent/jenkins /opt/agent/")

@@ -1,0 +1,19 @@
+[Unit]
+Description=Grafana
+Requires=network.target
+After=network.target
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/opt/agent/grafana/bin/$GRAFANA_VERSION/grafana server --config /opt/agent/grafana/conf/defaults.ini --homepath /opt/agent/grafana
+Restart=on-failure
+SuccessExitStatus=143
+
+User=agent
+Group=agent
+
+EnvironmentFile=-/opt/agent/grafana/conf/grafana.env
+
+[Install]
+WantedBy=multi-user.target
