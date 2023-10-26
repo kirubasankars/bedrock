@@ -4,9 +4,9 @@ from utils import *
 
 
 def consul_up():
-    consul_servers = get_consul_servers()
-    consul_clients = get_consul_clients()
-    consul_server = get_consul_server_0()
+    consul_servers = get_host_list('consul_server')
+    consul_clients = get_host_list('consul_client')
+    consul_server = get_host_one("consul_server")
 
     retries = 25
     while True:

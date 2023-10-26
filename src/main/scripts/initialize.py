@@ -1,6 +1,6 @@
 from cert import *
 from utils import *
-
+from variables import *
 
 def main():
     generate_ca_private()

@@ -5,7 +5,7 @@ from utils import *
 
 
 def bootstrap_nomad():
-    nomad_server = get_nomad_server_0()
+    nomad_server = get_host_one('nomad_server')
 
     result = command_remote(cmd=f"""
     source /opt/agent/profile

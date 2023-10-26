@@ -5,7 +5,7 @@ from utils import *
 
 
 def bootstrap_consul():
-    consul_server = get_consul_server_0()
+    consul_server = get_host_one("consul_server")
 
     result = command_remote("""
         source /opt/agent/profile

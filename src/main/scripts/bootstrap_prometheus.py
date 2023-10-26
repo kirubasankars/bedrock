@@ -2,8 +2,7 @@ from utils import *
 
 
 def bootstrap_prometheus():
-    nodes = retrieve_host_ip_and_roles()
-    prometheus = [ip for ip, roles in nodes.items() if "prometheus" in roles]
+    prometheus = get_host_one('prometheus')
 
     if len(prometheus) > 0:
         with open("/workspace/cluster_config.env", "a") as f:

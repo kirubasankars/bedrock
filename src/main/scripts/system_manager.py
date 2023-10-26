@@ -39,7 +39,7 @@ def main():
     ignore_error = config["ignore_error"]
     config["roles"] = [x.strip() for x in config["roles"].split(",") if x.strip()]
 
-    nodes = utils.retrieve_host_ip_and_roles(config["roles"])
+    nodes = utils.retrieve_host_and_roles(config["roles"])
     hosts = list(nodes.keys())
 
     max_concurrency = config["concurrency"] or len(hosts) or 1

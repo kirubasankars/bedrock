@@ -2,10 +2,10 @@ import time
 
 from command_helper import *
 from utils import *
-
+from variables import *
 
 def unseal():
-    vault_servers = get_vault_servers()
+    vault_servers = get_host_list('vault_server')
     if not os.path.isfile("/workspace/vault_unseal_tokens.txt"):
         return False
 

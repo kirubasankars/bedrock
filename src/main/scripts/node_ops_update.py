@@ -7,6 +7,7 @@ import cert
 import command_helper
 import const
 import utils
+import variables
 import vault
 
 
@@ -21,22 +22,22 @@ with open("/scripts/artifacts.json", "r") as f:
 
 def transpile():
     host_id = get_host_id()
-    interface_name = utils.get_network_interface_name()
-    cluster_id = utils.get_cluster_id()
+    interface_name = variables.get_network_interface_name()
+    cluster_id = variables.get_cluster_id()
 
     encryption_key = vault.get_kv_cluster_config("encryption_key")
     if not encryption_key:
-        encryption_key = utils.get_encryption_key()
+        encryption_key = variables.get_encryption_key()
 
     nomad_integration_consul_token = vault.get_kv_cluster_config("nomad_integration_consul_token")
     if not nomad_integration_consul_token:
-        nomad_integration_consul_token = utils.get_consul_token() or ""
+        nomad_integration_consul_token = variables.get_consul_token() or ""
 
     nomad_integration_vault_token = vault.get_kv_cluster_config("nomad_integration_vault_token")
     if not nomad_integration_vault_token:
-        nomad_integration_vault_token = utils.get_vault_token() or ""
+        nomad_integration_vault_token = variables.get_vault_token() or ""
 
-    nodes = utils.retrieve_host_ip_and_roles()
+    nodes = utils.retrieve_host_and_roles()
     consul_servers = [ip for ip, roles in nodes.items() if "consul_server" in roles]
     vault_servers = [ip for ip, roles in nodes.items() if "vault_server" in roles]
     nomad_servers = [ip for ip, roles in nodes.items() if "nomad_server" in roles]
@@ -94,7 +95,7 @@ def transpile():
 
 
 def sync():
-    cluster_id = utils.get_cluster_id()
+    cluster_id = variables.get_cluster_id()
     host = os.getenv("HOST")
 
     command_helper.command_local("""
@@ -119,7 +120,7 @@ def sync():
 
     command_helper.command_local(f"rsync /workspace/ca.crt /opt/agent/certs/")
 
-    nodes = utils.retrieve_host_ip_and_roles()
+    nodes = utils.retrieve_host_and_roles()
     roles = nodes.get(host, [])
     with open("/opt/agent/roles.txt", "w") as f:
         f.writelines("\n".join(roles))

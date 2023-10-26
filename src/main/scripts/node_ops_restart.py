@@ -9,7 +9,7 @@ def restart(name):
     """)
 
     host = os.getenv("HOST")
-    nodes = retrieve_host_ip_and_roles()
+    nodes = retrieve_host_and_roles()
     roles = nodes[host]
 
     if f"{name}" in roles or f"{name}_server" in roles:

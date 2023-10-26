@@ -3,7 +3,7 @@ from utils import *
 
 
 def bootstrap_vault():
-    vault_server = get_vault_server_0()
+    vault_server = get_host_one('vault_server')
 
     result = command_remote(f"""
         source /opt/agent/profile

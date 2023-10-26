@@ -7,8 +7,8 @@ from utils import *
 
 
 def vault_up():
-    vault_servers = get_vault_servers()
-    consul_server = get_consul_server_0()
+    vault_servers = get_host_list('vault_server')
+    consul_server = get_host_one("consul_server")
 
     retries = 50
     while True:

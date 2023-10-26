@@ -1,14 +1,14 @@
 import const
 from command_helper import *
 from utils import *
-
+from variables import *
 
 def connect_vault_nomad():
     root_vault_token = get_vault_token()
     root_nomad_token = get_nomad_token()
 
-    vault_server = get_vault_server_0()
-    nomad_server = get_nomad_server_0()
+    vault_server = get_host_one('vault_server')
+    nomad_server = get_host_one('nomad_server')
 
     command_remote(f"""
         source /opt/agent/profile
@@ -27,8 +27,8 @@ def connect_vault_consul():
     root_vault_token = get_vault_token()
     root_consul_token = get_consul_token()
 
-    vault_server = get_vault_server_0()
-    consul_server = get_consul_server_0()
+    vault_server = get_host_one('vault_server')
+    consul_server = get_host_one("consul_server")
 
     if not vault_server:
         return
@@ -49,8 +49,8 @@ def setup_vault_kv():
     root_vault_token = get_vault_token()
     root_consul_token = get_consul_token()
 
-    vault_server = get_vault_server_0()
-    consul_server = get_consul_server_0()
+    vault_server = get_host_one('vault_server')
+    consul_server = get_host_one("consul_server")
     encryption_key = get_encryption_key()
 
     if not vault_server:

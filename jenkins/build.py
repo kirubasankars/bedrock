@@ -4,7 +4,7 @@ import sys
 
 def get_hosts():
     hosts = []
-    with open("/workspace/hosts.txt", "r") as f:
+    with open("./workspace/hosts.txt", "r") as f:
         lines = [x for x in f.read().split("\n")  if len(x.strip()) > 0]
         for line in lines:
             if "jenkins" in line:
@@ -81,11 +81,11 @@ hosts = get_hosts()
 clusters = get_clusters()
 random.seed(1)
 
-with open(f"/workspace/hosts.txt", "r") as f:
+with open(f"./workspace/hosts.txt", "r") as f:
     nodes_txt = f.read()
 
 for cluster in clusters:
-    with open(f"/workspace/hosts.txt", "w") as f:
+    with open(f"./workspace/hosts.txt", "w") as f:
         f.write(nodes_txt)
 
     r = subprocess.run(["make", "cleanup"])
@@ -105,7 +105,7 @@ for cluster in clusters:
 
             print(nodes)
 
-            with open(f"/workspace/hosts.txt", "w") as f:
+            with open(f"./workspace/hosts.txt", "w") as f:
                 f.write("\n".join(nodes))
 
             if index == 0:

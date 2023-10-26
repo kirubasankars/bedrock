@@ -7,8 +7,8 @@ from utils import *
 
 
 def nomad_up():
-    nomad_servers = get_nomad_servers()
-    consul_server = get_consul_server_0()
+    nomad_servers = get_host_list('nomad_server')
+    consul_server = get_host_one("consul_server")
 
     retries = 25
     while True:
