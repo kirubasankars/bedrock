@@ -86,4 +86,4 @@ def get_host_one(role):
 
 def get_host_list(role):
     hosts = retrieve_host_and_roles()
-    return [ip for ip, roles in hosts.items() if role in roles]
+    return list(set([ip for ip, roles in hosts.items() if role in roles]))

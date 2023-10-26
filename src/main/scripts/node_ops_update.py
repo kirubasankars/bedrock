@@ -42,9 +42,15 @@ def transpile():
         prometheus_metrics_vault_token = variables.get_vault_token() or ""
 
     nodes = utils.retrieve_host_and_roles()
+
     consul_servers = utils.get_host_list('consul_server')
-    vault_servers = utils.get_host_list('vault_server')
+    consul_clients = utils.get_host_list('consul_client')
+
     nomad_servers = utils.get_host_list('nomad_server')
+    nomad_clients = utils.get_host_list('nomad_client')
+
+    vault_servers = utils.get_host_list('vault_server')
+
 
     nomad_bootstrap_count = str(len(nomad_servers))
     consul_bootstrap_count = str(len(consul_servers))
@@ -96,17 +102,21 @@ def transpile():
                                       json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()]))
 
             content = content.replace('$CONSUL_SERVER_TARGETS',
-                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in consul_servers]))
+                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in set(consul_servers)]))
+
+            consul_clients_only = list(set(consul_clients).difference(consul_servers))
             content = content.replace('$CONSUL_CLIENT_TARGETS',
-                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in consul_servers]))
+                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in consul_clients_only]))
 
             content = content.replace('$NOMAD_SERVER_TARGETS',
-                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in nomad_servers]))
+                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in set(nomad_servers)]))
+
+            nomad_clients_only = list(set(nomad_clients).difference(nomad_servers))
             content = content.replace('$NOMAD_CLIENT_TARGETS',
-                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in nomad_servers]))
+                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in nomad_clients_only]))
 
             content = content.replace('$VAULT_SERVER_TARGETS',
-                                      json.dumps([f"{x}:{const.VAULT_API_PORT}" for x in vault_servers]))
+                                      json.dumps([f"{x}:{const.VAULT_API_PORT}" for x in set(vault_servers)]))
 
 
             if content != data:
