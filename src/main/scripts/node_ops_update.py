@@ -37,10 +37,14 @@ def transpile():
     if not nomad_integration_vault_token:
         nomad_integration_vault_token = variables.get_vault_token() or ""
 
+    prometheus_metrics_vault_token = vault.get_kv_cluster_config("prometheus_metrics_vault_token")
+    if not prometheus_metrics_vault_token:
+        prometheus_metrics_vault_token = variables.get_vault_token() or ""
+
     nodes = utils.retrieve_host_and_roles()
-    consul_servers = [ip for ip, roles in nodes.items() if "consul_server" in roles]
-    vault_servers = [ip for ip, roles in nodes.items() if "vault_server" in roles]
-    nomad_servers = [ip for ip, roles in nodes.items() if "nomad_server" in roles]
+    consul_servers = utils.get_host_list('consul_server')
+    vault_servers = utils.get_host_list('vault_server')
+    nomad_servers = utils.get_host_list('nomad_server')
 
     nomad_bootstrap_count = str(len(nomad_servers))
     consul_bootstrap_count = str(len(consul_servers))
@@ -49,9 +53,7 @@ def transpile():
     if len(vault_servers) == 1:
         vault_servers.append(vault_servers[0])
 
-    targets = json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()])
-
-    for ext in ["*.json", "*.service", "*.conf", "*.yml", "*.env"]:
+    for ext in ["*.json", "*.service", "*.conf", "*.yml", "*.env", "*.token"]:
         for f in Path('/opt/agent/').rglob(ext):
             with open(f, 'r') as file:
                 data = file.read()
@@ -77,9 +79,10 @@ def transpile():
             content = content.replace('$CONSUL_HTTP_PORT', const.CONSUL_HTTP_PORT)
             content = content.replace('$CONSUL_HTTPS_PORT', const.CONSUL_HTTPS_PORT)
             content = content.replace('$NOMAD_PORT', const.VAULT_API_PORT)
-            content = content.replace('$TARGETS', targets)
+
             content = content.replace('$NOMAD_INTEGRATION_CONSUL_TOKEN', nomad_integration_consul_token)
             content = content.replace('$NOMAD_INTEGRATION_VAULT_TOKEN', nomad_integration_vault_token)
+            content = content.replace("$PROMETHEUS_METRICS_VAULT_TOKEN", prometheus_metrics_vault_token)
 
             content = content.replace('$NOMAD_VERSION', versions["nomad_version"])
             content = content.replace('$CONSUL_VERSION', versions["consul_version"])
@@ -88,6 +91,23 @@ def transpile():
             content = content.replace('$FILEBEAT_VERSION', versions["filebeat_version"])
             content = content.replace('$PROMETHEUS_VERSION', versions["prometheus_version"])
             content = content.replace('$JENKINS_VERSION', versions["jenkins_version"])
+
+            content = content.replace('$ALL_TARGETS',
+                                      json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()]))
+
+            content = content.replace('$CONSUL_SERVER_TARGETS',
+                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in consul_servers]))
+            content = content.replace('$CONSUL_CLIENT_TARGETS',
+                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in consul_servers]))
+
+            content = content.replace('$NOMAD_SERVER_TARGETS',
+                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in nomad_servers]))
+            content = content.replace('$NOMAD_CLIENT_TARGETS',
+                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in nomad_servers]))
+
+            content = content.replace('$VAULT_SERVER_TARGETS',
+                                      json.dumps([f"{x}:{const.VAULT_API_PORT}" for x in vault_servers]))
+
 
             if content != data:
                 with open(f, 'w') as file:

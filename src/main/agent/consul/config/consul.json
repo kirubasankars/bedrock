@@ -62,5 +62,9 @@
   "encrypt": "$ENCRYPTION_KEY",
   "encrypt_verify_incoming": true,
   "encrypt_verify_outgoing": true,
-  "enable_agent_tls_for_checks": true
+  "enable_agent_tls_for_checks": true,
+
+  "telemetry": {
+    "prometheus_retention_time": "12h"
+  }
 }

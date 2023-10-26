@@ -33,5 +33,9 @@
     }
   },
   "cluster_addr": "https://{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_CLUSTER_PORT",
-  "api_addr": "https://{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_API_PORT"
+  "api_addr": "https://{{ GetInterfaceIP \"$INTERFACE_NAME\" }}:$VAULT_API_PORT",
+  "telemetry": {
+    "disable_hostname": true,
+    "prometheus_retention_time": "12h"
+  }
 }

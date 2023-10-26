@@ -7,4 +7,71 @@ rule_files:
 scrape_configs:
   - job_name: 'telegraf'
     static_configs:
-      - targets: $TARGETS
+      - targets: $ALL_TARGETS
+
+  - job_name: 'consul_server'
+    metrics_path: /v1/agent/metrics
+    scheme: https
+    tls_config:
+      ca_file: /opt/agent/certs/ca.crt
+      cert_file: /opt/agent/certs/agent.crt
+      key_file: /opt/agent/certs/agent.key
+      insecure_skip_verify: false
+    params:
+      format: ['prometheus']
+    static_configs:
+      - targets: $CONSUL_SERVER_TARGETS
+
+  - job_name: 'consul_client'
+    metrics_path: /v1/agent/metrics
+    scheme: https
+    tls_config:
+      ca_file: /opt/agent/certs/ca.crt
+      cert_file: /opt/agent/certs/agent.crt
+      key_file: /opt/agent/certs/agent.key
+      insecure_skip_verify: false
+    params:
+      format: [ 'prometheus' ]
+    static_configs:
+      - targets: $CONSUL_CLIENT_TARGETS
+
+  - job_name: 'nomad_server'
+    metrics_path: /v1/metrics
+    scheme: https
+    tls_config:
+      ca_file: /opt/agent/certs/ca.crt
+      cert_file: /opt/agent/certs/agent.crt
+      key_file: /opt/agent/certs/agent.key
+      insecure_skip_verify: false
+    params:
+      format: [ 'prometheus' ]
+    static_configs:
+      - targets: $NOMAD_SERVER_TARGETS
+
+  - job_name: 'nomad_client'
+    metrics_path: /v1/metrics
+    scheme: https
+    tls_config:
+      ca_file: /opt/agent/certs/ca.crt
+      cert_file: /opt/agent/certs/agent.crt
+      key_file: /opt/agent/certs/agent.key
+      insecure_skip_verify: false
+    params:
+      format: [ 'prometheus' ]
+    static_configs:
+      - targets: $NOMAD_CLIENT_TARGETS
+
+  - job_name: 'vault_server'
+    metrics_path: /v1/sys/metrics
+    scheme: https
+    tls_config:
+      ca_file: /opt/agent/certs/ca.crt
+      cert_file: /opt/agent/certs/agent.crt
+      key_file: /opt/agent/certs/agent.key
+      insecure_skip_verify: false
+    params:
+      format: [ 'prometheus' ]
+    authorization:
+      credentials_file: /opt/agent/prometheus/config/vault.token
+    static_configs:
+      - targets: $VAULT_SERVER_TARGETS

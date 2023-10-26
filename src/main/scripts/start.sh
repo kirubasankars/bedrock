@@ -75,6 +75,7 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/system_manager.py --concurrency 2 --operation update
   python3 /scripts/system_manager.py --roles nomad_server --operation nomad_restart && sleep 15
   python3 /scripts/system_manager.py --roles nomad_client --operation nomad_restart
+  grep prometheus /workspace/hosts.txt && python3 /scripts/system_manager.py --roles prometheus --operation prometheus_restart
   grep prometheus /workspace/hosts.txt && python3 /scripts/bootstrap_prometheus.py
   pytest -s /scripts/test_up.py
 elif [ "$OPERATION" == "update" ]; then

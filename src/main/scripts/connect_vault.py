@@ -15,6 +15,7 @@ def connect_vault_nomad():
         export VAULT_TOKEN={root_vault_token}        
                 
         vault policy write nomad-server /opt/agent/vault/config/nomad-integration-vault-policy.hcl
+        vault policy write prometheus-metrics /opt/agent/vault/config/prometheus-metrics.hcl
         vault write /auth/token/roles/nomad-cluster @/opt/agent/vault/config/nomad-integration-vault-role.json
         
         vault write nomad/config/lease ttl=1h max_ttl=1h
@@ -69,12 +70,19 @@ def setup_vault_kv():
 
     nomad_integration_consul_token = r.json()["SecretID"]
 
+    r = requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/auth/token/create-orphan",
+                      json={"policies": ["prometheus-metrics"]},
+                      verify=const.PUBLIC_CERT,
+                      headers={'X-Vault-Token': root_vault_token})
+    prometheus_metrics_vault_token = r.json()["auth"]["client_token"]
+
     command_remote(f"""
         source /opt/agent/profile
         export VAULT_TOKEN={root_vault_token}            
         
         vault kv put -mount=cluster_config nomad_integration_vault_token token={nomad_integration_vault_token}
         vault kv put -mount=cluster_config nomad_integration_consul_token token={nomad_integration_consul_token}
+        vault kv put -mount=cluster_config prometheus_metrics_vault_token token={prometheus_metrics_vault_token}
         vault kv put -mount=cluster_config encryption_key key={encryption_key}
     """, vault_server)
 
