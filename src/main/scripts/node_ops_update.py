@@ -22,35 +22,22 @@ with open("/scripts/artifacts.json", "r") as f:
 
 def transpile():
     host_id = get_host_id()
+
     interface_name = variables.get_network_interface_name()
     cluster_id = variables.get_cluster_id()
 
-    encryption_key = vault.get_kv_cluster_config("encryption_key")
-    if not encryption_key:
-        encryption_key = variables.get_encryption_key()
-
-    nomad_integration_consul_token = vault.get_kv_cluster_config("nomad_integration_consul_token")
-    if not nomad_integration_consul_token:
-        nomad_integration_consul_token = variables.get_consul_token() or ""
-
-    nomad_integration_vault_token = vault.get_kv_cluster_config("nomad_integration_vault_token")
-    if not nomad_integration_vault_token:
-        nomad_integration_vault_token = variables.get_vault_token() or ""
-
-    prometheus_metrics_vault_token = vault.get_kv_cluster_config("prometheus_metrics_vault_token")
-    if not prometheus_metrics_vault_token:
-        prometheus_metrics_vault_token = variables.get_vault_token() or ""
+    encryption_key = vault.get_kv_cluster_config("encryption_key") or ""
+    nomad_integration_vault_token = vault.get_kv_cluster_config("nomad_integration_vault_token") or variables.get_vault_token()
+    prometheus_metrics_vault_token = vault.get_kv_cluster_config("prometheus_metrics_vault_token") or ""
+    nomad_integration_consul_token = vault.get_kv_cluster_config("nomad_integration_consul_token") or ""
 
     nodes = utils.retrieve_host_and_roles()
 
     consul_servers = utils.get_host_list('consul_server')
     consul_clients = utils.get_host_list('consul_client')
-
     nomad_servers = utils.get_host_list('nomad_server')
     nomad_clients = utils.get_host_list('nomad_client')
-
     vault_servers = utils.get_host_list('vault_server')
-
 
     nomad_bootstrap_count = str(len(nomad_servers))
     consul_bootstrap_count = str(len(consul_servers))
@@ -59,15 +46,49 @@ def transpile():
     if len(vault_servers) == 1:
         vault_servers.append(vault_servers[0])
 
+    consul_clients_only = list(set(consul_clients).difference(consul_servers))
+    nomad_clients_only = list(set(nomad_clients).difference(nomad_servers))
+
+    values = {
+        "$NODE_NAME": host_id,
+        "$INTERFACE_NAME": interface_name,
+        "$CLUSTER_ID": cluster_id,
+        "$ENCRYPTION_KEY": encryption_key,
+        "$CONSUL_BOOTSTRAP_COUNT": consul_bootstrap_count,
+        "$NOMAD_BOOTSTRAP_COUNT": nomad_bootstrap_count,
+        "$VAULT_API_PORT": const.VAULT_API_PORT,
+        "$VAULT_CLUSTER_PORT": const.VAULT_CLUSTER_PORT,
+        "$CONSUL_HTTP_PORT": const.CONSUL_HTTP_PORT,
+        "$CONSUL_HTTPS_PORT": const.CONSUL_HTTPS_PORT,
+        "$NOMAD_PORT": const.VAULT_API_PORT,
+        "$NOMAD_INTEGRATION_CONSUL_TOKEN": nomad_integration_consul_token,
+        "$NOMAD_INTEGRATION_VAULT_TOKEN": nomad_integration_vault_token,
+        "$PROMETHEUS_METRICS_VAULT_TOKEN": prometheus_metrics_vault_token,
+        "$NOMAD_VERSION": versions["nomad_version"],
+        "$CONSUL_VERSION": versions["consul_version"],
+        "$VAULT_VERSION": versions["vault_version"],
+        "$TELEGRAF_VERSION": versions["telegraf_version"],
+        "$FILEBEAT_VERSION": versions["filebeat_version"],
+        "$PROMETHEUS_VERSION": versions["prometheus_version"],
+        "$JENKINS_VERSION": versions["jenkins_version"],
+        "$GRAFANA_VERSION": versions["grafana_version"],
+        "$ALL_TARGETS": json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()]),
+        "$CONSUL_SERVER_TARGETS": json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in set(consul_servers)]),
+        "$CONSUL_CLIENT_TARGETS": json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in consul_clients_only]),
+        "$NOMAD_SERVER_TARGETS": json.dumps([f"{x}:{const.NOMAD_PORT}" for x in set(nomad_servers)]),
+        "$NOMAD_CLIENT_TARGETS": json.dumps([f"{x}:{const.NOMAD_PORT}" for x in nomad_clients_only]),
+        "$VAULT_SERVER_TARGETS": json.dumps([f"{x}:{const.VAULT_API_PORT}" for x in set(vault_servers)])
+    }
+
     for ext in ["*.json", "*.service", "*.conf", "*.yml", "*.env", "*.token"]:
         for f in Path('/opt/agent/').rglob(ext):
             with open(f, 'r') as file:
                 data = file.read()
 
-            content = data.replace('$NODE_NAME', host_id)
-            content = content.replace('$INTERFACE_NAME', interface_name)
-            content = content.replace('$CLUSTER_ID', cluster_id)
-            content = content.replace('$ENCRYPTION_KEY', encryption_key)
+            content = data
+
+            for k, v in values.items():
+                content = content.replace(k, v)
 
             if len(consul_servers) > 0:
                 content = content.replace('$CONSUL_NODE1', consul_servers[0])
@@ -76,49 +97,6 @@ def transpile():
             if len(vault_servers) > 0:
                 content = content.replace('$VAULT_NODE1', vault_servers[0])
                 content = content.replace('$VAULT_NODE2', vault_servers[1])
-
-            content = content.replace('$CONSUL_BOOTSTRAP_COUNT', consul_bootstrap_count)
-            content = content.replace('$NOMAD_BOOTSTRAP_COUNT', nomad_bootstrap_count)
-
-            content = content.replace('$VAULT_API_PORT', const.VAULT_API_PORT)
-            content = content.replace('$VAULT_CLUSTER_PORT', const.VAULT_CLUSTER_PORT)
-            content = content.replace('$CONSUL_HTTP_PORT', const.CONSUL_HTTP_PORT)
-            content = content.replace('$CONSUL_HTTPS_PORT', const.CONSUL_HTTPS_PORT)
-            content = content.replace('$NOMAD_PORT', const.VAULT_API_PORT)
-
-            content = content.replace('$NOMAD_INTEGRATION_CONSUL_TOKEN', nomad_integration_consul_token)
-            content = content.replace('$NOMAD_INTEGRATION_VAULT_TOKEN', nomad_integration_vault_token)
-            content = content.replace("$PROMETHEUS_METRICS_VAULT_TOKEN", prometheus_metrics_vault_token)
-
-            content = content.replace('$NOMAD_VERSION', versions["nomad_version"])
-            content = content.replace('$CONSUL_VERSION', versions["consul_version"])
-            content = content.replace('$VAULT_VERSION', versions["vault_version"])
-            content = content.replace('$TELEGRAF_VERSION', versions["telegraf_version"])
-            content = content.replace('$FILEBEAT_VERSION', versions["filebeat_version"])
-            content = content.replace('$PROMETHEUS_VERSION', versions["prometheus_version"])
-            content = content.replace('$JENKINS_VERSION', versions["jenkins_version"])
-            content = content.replace('$GRAFANA_VERSION', versions["grafana_version"])
-
-            content = content.replace('$ALL_TARGETS',
-                                      json.dumps([f"{x}:{const.TELEGRAF_PROMETHEUS_PORT}" for x in nodes.keys()]))
-
-            content = content.replace('$CONSUL_SERVER_TARGETS',
-                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in set(consul_servers)]))
-
-            consul_clients_only = list(set(consul_clients).difference(consul_servers))
-            content = content.replace('$CONSUL_CLIENT_TARGETS',
-                                      json.dumps([f"{x}:{const.CONSUL_HTTPS_PORT}" for x in consul_clients_only]))
-
-            content = content.replace('$NOMAD_SERVER_TARGETS',
-                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in set(nomad_servers)]))
-
-            nomad_clients_only = list(set(nomad_clients).difference(nomad_servers))
-            content = content.replace('$NOMAD_CLIENT_TARGETS',
-                                      json.dumps([f"{x}:{const.NOMAD_PORT}" for x in nomad_clients_only]))
-
-            content = content.replace('$VAULT_SERVER_TARGETS',
-                                      json.dumps([f"{x}:{const.VAULT_API_PORT}" for x in set(vault_servers)]))
-
 
             if content != data:
                 with open(f, 'w') as file:
@@ -130,7 +108,7 @@ def sync():
     host = os.getenv("HOST")
 
     command_helper.command_local("""
-        rsync -r /workspace/artifacts/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins,grafana}  /agent
+        rsync -r /workspace/artifacts/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins}  /agent
         mkdir -p /opt/agent/certs
         bash /scripts/rsync_remote_local.sh
     """)

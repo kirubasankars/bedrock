@@ -1,6 +1,6 @@
 from command_helper import *
 from utils import *
-
+from cert import *
 
 def bootstrap_vault():
     vault_server = get_host_one('vault_server')
@@ -15,10 +15,8 @@ def bootstrap_vault():
 
         vault_token = (stdout.split("\n")[6]).split(" ")[3]
 
-        with open("/workspace/cluster_config.env", "a") as f:
-            f.write("\n")
-            f.write(f"VAULT_ADDRESS=https://{vault_server}:{const.VAULT_API_PORT}\n")
-            f.write(f"VAULT_TOKEN={vault_token}\n")
+        with open("/workspace/vault_token.txt", "a") as f:
+            f.write(f"{vault_token}")
 
         with open("/workspace/vault_unseal_tokens.txt", "w") as f:
             for x in stdout.split("\n")[:5]:
