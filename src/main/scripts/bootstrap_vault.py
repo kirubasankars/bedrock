@@ -1,4 +1,3 @@
-from command_helper import *
 from utils import *
 from cert import *
 
@@ -21,6 +20,5 @@ def bootstrap_vault():
         with open("/workspace/vault_unseal_tokens.txt", "w") as f:
             for x in stdout.split("\n")[:5]:
                 f.write(x.split(" ")[3] + "\n")
-
 
 bootstrap_vault()

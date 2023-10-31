@@ -21,3 +21,5 @@ except:
 time.sleep(10)
 
 wait_for_machine.wait_for_machine(target_host=os.getenv("HOST"))
+
+# TODO: wait for consul to be green

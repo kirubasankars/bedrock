@@ -42,6 +42,9 @@ def main():
     nodes = utils.retrieve_host_and_roles(config["roles"])
     hosts = list(nodes.keys())
 
+    if len(hosts) == 0:
+        return
+
     max_concurrency = config["concurrency"] or len(hosts) or 1
     work_items = list(zip(hosts, (len(hosts) * [str(command_group)]), (len(hosts) * [config["operation"]])))
     work_list = [work_items[i:i + max_concurrency] for i in range(0, len(work_items), max_concurrency)]

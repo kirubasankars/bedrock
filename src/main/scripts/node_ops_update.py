@@ -107,6 +107,10 @@ def sync():
     cluster_id = variables.get_cluster_id()
     host = os.getenv("HOST")
 
+    if not os.path.isfile("/workspace/ca.key"):
+        cert.generate_ca_private()
+        cert.generate_ca_public(variables.get_cluster_id())
+
     command_helper.command_local("""
         rsync -r /workspace/artifacts/{consul,nomad,vault,telegraf,filebeat,prometheus,jenkins}  /agent
         mkdir -p /opt/agent/certs
