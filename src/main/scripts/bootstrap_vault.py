@@ -1,6 +1,6 @@
 from utils import *
 from cert import *
-
+import wait_for_vault_initialized
 def bootstrap_vault():
     vault_server = get_host_one('vault_server')
 
@@ -20,5 +20,7 @@ def bootstrap_vault():
         with open("/workspace/vault_unseal_tokens.txt", "w") as f:
             for x in stdout.split("\n")[:5]:
                 f.write(x.split(" ")[3] + "\n")
+
+    wait_for_vault_initialized.vault_up()
 
 bootstrap_vault()

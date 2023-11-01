@@ -14,7 +14,7 @@ def consul_up():
             r = requests.get(f"https://{consul_server}:{const.CONSUL_HTTPS_PORT}/v1/catalog/nodes",
                              verify=const.PUBLIC_CERT)
             r.raise_for_status()
-            if len(r.json()) == len(consul_servers + consul_clients):
+            if len(r.json()) == len(set(consul_servers + consul_clients)):
                 break
             print("Waiting for consul up ...", flush=True)
             time.sleep(3)
