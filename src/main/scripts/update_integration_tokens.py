@@ -1,6 +1,7 @@
 from utils import *
 from variables import *
 import vault
+import consul
 
 def update_integration_tokens():
     root_vault_token = get_vault_token()
@@ -25,7 +26,7 @@ def update_integration_tokens():
 
     consul_server = get_host_one('consul_server')
     if not vault.get_kv_cluster_config("nomad_integration_consul_token"):
-        consul_token = vault.get_kv_cluster_config("root_consul_token")  # TODO: use generated root consul token
+        consul_token = consul.get_consul_management_token()
         r = requests.put(f"https://{consul_server}:{const.CONSUL_HTTPS_PORT}/v1/acl/token",
                           json={"Description": "nomad", "Policies": [{"Name": "nomad-policy"}], "Local": False},
                           verify=const.PUBLIC_CERT,

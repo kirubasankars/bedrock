@@ -19,12 +19,11 @@ def vault_up():
             if len([x for x in r.json() if "initialized" in x["ServiceTags"]]) == 1:
                 break
             print("waiting for vault initialized and active status", flush=True)
-            time.sleep(5)
         finally:
             retries = retries - 1
             if retries <= 0:
                 sys.exit(1)
-
+            time.sleep(15)
 
 if __name__ == "__main__":
     vault_up()

@@ -15,27 +15,35 @@ def unseal():
 
     for vault_server in vault_servers:
 
-        r = requests.get(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/health", verify=const.PUBLIC_CERT)
-        vault_health = r.json()
+        for x in range(30):
+            r = requests.get(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/health", verify=const.PUBLIC_CERT)
+            vault_health = r.json()
+            print(vault_health, flush=True)
+            if vault_health["initialized"] and vault_health["sealed"]:
+                break
+            time.sleep(10)
 
-        if vault_health["sealed"]:
+        requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/unseal",
+                      json={"reset": True},
+                      verify=const.PUBLIC_CERT,
+                      headers={'X-Vault-Token': root_vault_token})
 
-            requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/unseal",
-                          json={"reset": True},
-                          verify=const.PUBLIC_CERT,
-                          headers={'X-Vault-Token': root_vault_token})
+        for unseal_key in unseal_keys:
+            r = requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/unseal",
+                              json={"key": unseal_key},
+                              verify=const.PUBLIC_CERT,
+                              headers={'X-Vault-Token': root_vault_token})
+            print(r.text, r.json(), flush=True)
+            r.raise_for_status()
+            time.sleep(1)
 
-            for unseal_key in unseal_keys:
-                r = requests.post(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/unseal",
-                                  json={"key": unseal_key},
-                                  verify=const.PUBLIC_CERT,
-                                  headers={'X-Vault-Token': root_vault_token})
-                r.raise_for_status()
-                time.sleep(1)
+        for x in range(30):
+            r = requests.get(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/health", verify=const.PUBLIC_CERT)
+            vault_health = r.json()
+            if vault_health["initialized"] and not vault_health["sealed"]:
+                break
+            time.sleep(10)
 
-            vault_health = requests.get(f"https://{vault_server}:{const.VAULT_API_PORT}/v1/sys/health",
-                                        verify=const.PUBLIC_CERT).json()
-            assert vault_health["initialized"] and not vault_health["sealed"]
         time.sleep(15) # this allows vault to sync up
 
     return True

@@ -29,6 +29,4 @@ def bootstrap_consul():
             vault write consul/roles/management policies=global-management ttl=4h
         """, vault_server)
 
-        vault.put_kv_cluster_config("root_consul_token", {"token":consul_token})
-
 bootstrap_consul()

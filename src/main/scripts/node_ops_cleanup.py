@@ -22,7 +22,7 @@ def main():
         docker system prune -af || true        
         for x in $(mount | grep alloc | awk '{ print $3 }'); do umount $x || true; done
 
-        [ -d /opt/agent ] && rm -r /opt/agent        
+        [ -d /opt/agent ] && rm -r /opt/agent || true
         sed -i '/source \/opt\/agent\/profile/d' /etc/profile                                
     """)
 
