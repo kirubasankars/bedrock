@@ -51,8 +51,12 @@ def retrieve_host_and_roles(host_filter=None):
 
     for host, roles in nodes.items():
         roles.extend(["telegraf", "filebeat"])
+
         if "nomad_client" in roles or "nomad_server" in roles or "vault_server" in roles or "jenkins" in roles:
             roles.append("consul_client")
+
+        if "consul_server" in roles:
+            roles.remove("consul_client")
 
         roles = list(set(roles))
 
