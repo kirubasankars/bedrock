@@ -67,7 +67,8 @@ elif [ "$OPERATION" == "bootstrap" ]; then
   python3 /scripts/system_manager.py --concurrency "$MAX_CONCURRENCY" --roles grafana --operation grafana_up
   pytest -s /scripts/test_up.py
   rm -f /workspace/ca.srl
-elif [ "$OPERATION" == "upgrade" ]; then
+elif [ "$OPERATION" == "update" ]; then
+  python3 /scripts/system_manager.py --operation os_setup
   # TODO: update certs if expired, this helps to bring back cluster which stopped for long time.
   python3 /scripts/system_manager.py --concurrency "$MAX_CONCURRENCY" --roles consul_server --operation consul_up && sleep 15
   python3 /scripts/system_manager.py --concurrency "$MAX_CONCURRENCY" --roles consul_client --operation consul_up
@@ -77,7 +78,6 @@ elif [ "$OPERATION" == "upgrade" ]; then
   python3 /scripts/wait_for_vault.py
   python3 /scripts/update_policies.py
   python3 /scripts/update_integration_tokens.py
-  python3 /scripts/system_manager.py --operation os_setup
   python3 /scripts/system_manager.py --concurrency "$MAX_CONCURRENCY" --operation update
 elif [ "$OPERATION" == "os_patching" ]; then
   python3 /scripts/system_manager.py --concurrency 1 --operation os_patching
