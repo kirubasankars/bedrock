@@ -12,7 +12,6 @@ export SSH_KEY=${SSH_KEY:-""}
 export IMAGE_NAME=$(docker inspect --format='{{.Config.Image}}' "$HOSTNAME")
 export NODE_OPS=${NODE_OPS:-"0"}
 export MAX_CONCURRENCY=${MAX_CONCURRENCY:-"4"}
-
 # shellcheck disable=SC2046
 eval $(ssh-agent -s) > /dev/null
 ssh-add /workspace/"${SSH_KEY}" 2> /dev/null
@@ -27,8 +26,6 @@ if [ "$NODE_OPS" == "1" ]; then
 fi
 
 if [ "$OPERATION" == "download_artifacts" ]; then
-  rm -fr /workspace/downloads
-  mkdir -p /workspace/downloads
   bash /scripts/download_artifacts.sh
   bash /scripts/extract.sh
 elif [ "$OPERATION" == "cleanup" ]; then
@@ -129,6 +126,8 @@ elif [ "$OPERATION" == "unseal" ]; then
   python3 /scripts/unseal_vault.py
   python3 /scripts/wait_for_vault.py
   pytest -s /scripts/test_up.py
+elif [ "$OPERATION" == "generate_session_token" ]; then
+  python3 /scripts/session_token.py
 elif [ "$OPERATION" == "jenkins" ]; then
   python3 /scripts/system_manager.py --roles jenkins --operation jenkins_os_setup
   python3 /scripts/system_manager.py --roles jenkins --operation update

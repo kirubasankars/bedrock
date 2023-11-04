@@ -1,0 +1,18 @@
+IMAGE="bedrock"
+JENKINS=192.168.1.124
+
+include ./Makefile
+
+build:
+	docker build -t $(IMAGE) ./src/main
+
+push:
+	rsync -a -r $(PWD)/workspace root@$(JENKINS):/
+	ssh root@$(JENKINS) "chown -R agent:agent /workspace"
+	git remote rm jenkins || true
+	git remote add jenkins root@$(JENKINS):/build.git || true
+	git push -f jenkins -f main:master || true
+
+publish:
+	docker tag $(IMAGE) $(JENKINS):5000/$(IMAGE):1.0
+	docker push $(JENKINS):5000/$(IMAGE):1.0

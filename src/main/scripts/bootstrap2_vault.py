@@ -10,8 +10,8 @@ def bootstrap2_vault():
         source /opt/agent/profile
         export VAULT_TOKEN={vault_token}
         vault auth enable userpass        
-        vault secrets enable nomad
-        vault secrets enable consul
+        vault secrets enable -path=nomad -default-lease-ttl=4h -max-lease-ttl=4h nomad
+        vault secrets enable -path=consul -default-lease-ttl=4h -max-lease-ttl=4h consul
         vault secrets enable -version=2 -path=cluster_config kv
     """, vault_server)
 

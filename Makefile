@@ -1,15 +1,11 @@
 IMAGE="bedrock"
-JENKINS=192.168.1.124
-
-build:
-	docker build -t $(IMAGE) ./src/main
 
 cleanup:
 	yes | docker container prune
 	docker run --rm --privileged -e OPERATION=cleanup -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
 download_artifacts:
-	docker run --rm --privileged -e OPERATION=download_artifacts -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
+	docker run --privileged -e OPERATION=download_artifacts -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
 bootstrap:
 	docker run --rm --privileged -e OPERATION=bootstrap -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
@@ -35,19 +31,11 @@ validate:
 unseal:
 	docker run --rm --privileged -e OPERATION=unseal -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
+generate_session_token:
+	@docker run --rm --privileged -e OPERATION=generate_session_token -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
+
 run_command:
 	docker run --rm --privileged -e OPERATION=run_command -e WORKSPACE=$(PWD)/workspace -e MAX_CONCURRENCY=1 -e IGNORE_ERROR=0 -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
 
 setup_jenkins:
 	docker run --rm --privileged -e OPERATION=jenkins -e WORKSPACE=$(PWD)/workspace -v $(PWD)/workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock $(IMAGE)
-
-push:
-	rsync -a -r $(PWD)/workspace root@$(JENKINS):/
-	ssh root@$(JENKINS) "chown -R agent:agent /workspace"
-	git remote rm jenkins || true
-	git remote add jenkins root@$(JENKINS):/build.git || true
-	git push -f jenkins -f main:master || true
-
-publish:
-	docker tag $(IMAGE) $(JENKINS):5000/$(IMAGE):1.0
-	docker push $(JENKINS):5000/$(IMAGE):1.0
